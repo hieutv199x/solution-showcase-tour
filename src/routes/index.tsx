@@ -371,6 +371,57 @@ function StepCard({ step }: { step: { n: string; title: string; desc: string; ta
   );
 }
 
+/* ---------------- SIMULATION ---------------- */
+function Simulation() {
+  return (
+    <section id="simulation" className="relative border-t border-border py-28 md:py-36">
+      <div className="absolute inset-0 grid-bg opacity-20" />
+      <div className="relative mx-auto max-w-7xl px-6">
+        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="max-w-3xl">
+          <div className="mono mb-4 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-primary">
+            <Pulse className="h-3.5 w-3.5" /> 04 — Mô phỏng luồng data
+          </div>
+          <h2 className="text-4xl font-bold leading-tight md:text-5xl">
+            Xem từng <span className="text-gradient">packet</span> di chuyển qua hệ thống — theo thời gian thực.
+          </h2>
+          <p className="mt-5 max-w-2xl text-muted-foreground">
+            Bấm play để theo dõi một CR thật sự được orchestrate: từ Confluence link, qua Step Functions, dựng workspace trên Fargate,
+            phát fan-out cho 7 domain agents, và mọi tool call đều được audit vào S3 với evidence rõ ràng.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7 }}
+          className="mt-12"
+        >
+          <DataFlowSimulator />
+        </motion.div>
+
+        <div className="mono mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] text-muted-foreground">
+          <LegendDot color="var(--cyan)" label="ingress / state" />
+          <LegendDot color="var(--violet)" label="orchestration" />
+          <LegendDot color="var(--lime)" label="workspace" />
+          <LegendDot color="var(--primary)" label="gateway" />
+          <LegendDot color="var(--amber)" label="agent query" />
+          <LegendDot color="var(--rose)" label="decision" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LegendDot({ color, label }: { color: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span className="h-2 w-2 rounded-full" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
+      {label}
+    </span>
+  );
+}
+
 /* ---------------- AGENTS ---------------- */
 function Agents() {
   const agents = [
