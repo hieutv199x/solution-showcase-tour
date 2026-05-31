@@ -3,8 +3,9 @@ import { motion } from "motion/react";
 import {
   GitBranch, FileText, Network, Bot, ShieldCheck, Boxes, Workflow, Server,
   Search, AlertTriangle, Radio, History, Rocket, Lock, Activity, Database,
-  Zap, ArrowRight, CheckCircle2, Sparkles,
+  Zap, ArrowRight, CheckCircle2, Sparkles, Activity as Pulse,
 } from "lucide-react";
+import { DataFlowSimulator } from "@/components/DataFlowSimulator";
 
 export const Route = createFileRoute("/")({
   head: () => ({
