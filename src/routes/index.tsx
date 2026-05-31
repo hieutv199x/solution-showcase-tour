@@ -314,36 +314,33 @@ function Journey() {
         </motion.div>
 
         <div className="relative mt-16">
-          {/* timeline rail */}
-          <div className="absolute left-[27px] top-2 bottom-2 w-px bg-gradient-to-b from-primary/60 via-accent/40 to-transparent md:left-1/2" />
+          <div className="absolute left-[27px] top-2 bottom-2 w-px bg-gradient-to-b from-primary/60 via-accent/40 to-transparent md:left-1/2 md:-translate-x-1/2" />
 
-          <ol className="space-y-12 md:space-y-20">
-            {steps.map((s, i) => (
-              <motion.li
-                key={s.n}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.6 }}
-                className={`relative grid items-start gap-6 md:grid-cols-2 md:gap-16 ${i % 2 === 1 ? "md:[&>div:first-child]:order-2" : ""}`}
-              >
-                <div className={`relative pl-16 md:pl-0 ${i % 2 === 1 ? "md:text-right" : ""}`}>
-                  {/* dot */}
+          <ol className="space-y-12 md:space-y-16">
+            {steps.map((s, i) => {
+              const right = i % 2 === 1;
+              const Icon = s.icon;
+              return (
+                <motion.li
+                  key={s.n}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.6 }}
+                  className="relative md:grid md:grid-cols-2 md:gap-16"
+                >
                   <div
-                    className="absolute left-0 top-1 grid h-14 w-14 place-items-center rounded-xl border border-border bg-surface md:left-auto md:right-auto"
-                    style={{
-                      [i % 2 === 1 ? "right" : "left"]: i % 2 === 1 ? "auto" : "0",
-                      ...(typeof window !== "undefined" ? {} : {}),
-                      boxShadow: `0 0 0 4px var(--background), 0 0 24px -4px ${s.color}80`,
-                    }}
+                    className="absolute left-0 top-1 z-10 grid h-14 w-14 place-items-center rounded-xl border border-border bg-surface md:left-1/2 md:-translate-x-1/2"
+                    style={{ boxShadow: `0 0 0 4px var(--background), 0 0 24px -4px ${s.color}99` }}
                   >
-                    <s.icon className="h-6 w-6" style={{ color: s.color }} />
+                    <Icon className="h-6 w-6" style={{ color: s.color }} />
                   </div>
-                </div>
-                {/* (we'll instead render side cards in the second column, dot via absolute on timeline) */}
-                <StepCard step={s} side={i % 2 === 0 ? "left" : "right"} />
-              </motion.li>
-            ))}
+                  <div className={`pl-20 md:pl-0 ${right ? "md:col-start-2 md:pl-12" : "md:pr-12"}`}>
+                    <StepCard step={s} />
+                  </div>
+                </motion.li>
+              );
+            })}
           </ol>
         </div>
       </div>
@@ -351,23 +348,21 @@ function Journey() {
   );
 }
 
-function StepCard({ step, side }: { step: { n: string; title: string; desc: string; tags: string[]; color: string; icon: React.ComponentType<{ className?: string }> }; side: "left" | "right" }) {
+function StepCard({ step }: { step: { n: string; title: string; desc: string; tags: string[]; color: string } }) {
   return (
-    <div className={`pl-16 md:pl-0 ${side === "right" ? "md:order-1 md:pr-16" : "md:pl-16"}`}>
-      <div className="glass rounded-2xl border border-border p-7 transition hover:border-primary/40" style={{ boxShadow: "var(--shadow-soft)" }}>
-        <div className="flex items-center gap-3">
-          <span className="mono text-xs tracking-widest text-muted-foreground">STEP {step.n}</span>
-          <span className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${step.color}88, transparent)` }} />
-        </div>
-        <h3 className="mt-3 text-2xl font-semibold">{step.title}</h3>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{step.desc}</p>
-        <div className="mt-5 flex flex-wrap gap-1.5">
-          {step.tags.map((t) => (
-            <span key={t} className="mono rounded-md border border-border bg-background/60 px-2 py-1 text-[10.5px] text-foreground/80">
-              {t}
-            </span>
-          ))}
-        </div>
+    <div className="glass rounded-2xl border border-border p-7 text-left transition hover:border-primary/40" style={{ boxShadow: "var(--shadow-soft)" }}>
+      <div className="flex items-center gap-3">
+        <span className="mono text-xs tracking-widest text-muted-foreground">STEP {step.n}</span>
+        <span className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${step.color}88, transparent)` }} />
+      </div>
+      <h3 className="mt-3 text-2xl font-semibold">{step.title}</h3>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{step.desc}</p>
+      <div className="mt-5 flex flex-wrap gap-1.5">
+        {step.tags.map((t) => (
+          <span key={t} className="mono rounded-md border border-border bg-background/60 px-2 py-1 text-[10.5px] text-foreground/80">
+            {t}
+          </span>
+        ))}
       </div>
     </div>
   );
