@@ -379,7 +379,7 @@ function Simulation() {
       <div className="relative mx-auto max-w-7xl px-6">
         <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="max-w-3xl">
           <div className="mono mb-4 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-primary">
-            <Pulse className="h-3.5 w-3.5" /> 04 — Mô phỏng luồng data
+            <Cpu className="h-3.5 w-3.5" /> 04 — Mô phỏng luồng data
           </div>
           <h2 className="text-4xl font-bold leading-tight md:text-5xl">
             Xem từng <span className="text-gradient">packet</span> di chuyển qua hệ thống — theo thời gian thực.
