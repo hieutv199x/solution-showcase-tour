@@ -58,6 +58,7 @@ function Nav() {
           <a href="#problem" className="hover:text-foreground">Vấn đề</a>
           <a href="#idea" className="hover:text-foreground">Ý tưởng</a>
           <a href="#journey" className="hover:text-foreground">Hành trình</a>
+          <a href="#architecture" className="hover:text-foreground">Kiến trúc</a>
           <a href="#simulation" className="hover:text-foreground">Mô phỏng</a>
           <a href="#agents" className="hover:text-foreground">Agents</a>
           <a href="#why" className="hover:text-foreground">Vì sao</a>
