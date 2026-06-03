@@ -6,6 +6,7 @@ import {
   Zap, ArrowRight, CheckCircle2, Sparkles, Cpu,
 } from "lucide-react";
 import { DataFlowSimulator } from "@/components/DataFlowSimulator";
+import { ArchitectureFlow } from "@/components/ArchitectureFlow";
 
 export const Route = createFileRoute("/")({
   head: () => ({
