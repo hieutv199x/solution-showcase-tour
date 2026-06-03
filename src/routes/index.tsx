@@ -33,6 +33,7 @@ function SolutionTour() {
       <Problem />
       <BigIdea />
       <Journey />
+      <Architecture />
       <Simulation />
       <Agents />
       <Evidence />
