@@ -374,6 +374,41 @@ function StepCard({ step }: { step: { n: string; title: string; desc: string; ta
   );
 }
 
+/* ---------------- ARCHITECTURE ---------------- */
+function Architecture() {
+  return (
+    <section id="architecture" className="relative border-t border-border py-28 md:py-36">
+      <div className="absolute inset-0 grid-bg opacity-15" />
+      <div className="relative mx-auto max-w-7xl px-6">
+        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="max-w-3xl">
+          <div className="mono mb-4 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-primary">
+            <Network className="h-3.5 w-3.5" /> 04 — Kiến trúc hệ thống
+          </div>
+          <h2 className="text-4xl font-bold leading-tight md:text-5xl">
+            Toàn bộ hệ thống trong <span className="text-gradient">một sơ đồ tương tác</span>.
+          </h2>
+          <p className="mt-5 max-w-2xl text-muted-foreground">
+            Năm tầng — từ người dùng &amp; nguồn input, qua API, orchestration với hai nhánh
+            <span className="text-foreground"> DOCUMENT_ONLY</span> và
+            <span className="text-foreground"> CODE_AWARE</span>, đến tầng đánh giá &amp; quyết định.
+            Kéo, zoom, pan để khám phá từng node.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7 }}
+          className="mt-12"
+        >
+          <ArchitectureFlow />
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 /* ---------------- SIMULATION ---------------- */
 function Simulation() {
   return (
