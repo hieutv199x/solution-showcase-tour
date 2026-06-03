@@ -24,7 +24,7 @@ import {
 type NodeData = {
   label: string;
   sub?: string;
-  icon?: React.ComponentType<{ className?: string }>;
+  icon?: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   color?: string;
   step?: number;          // execution order (lower = earlier)
   role?: string;          // short tagline
