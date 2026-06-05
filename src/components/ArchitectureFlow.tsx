@@ -13,9 +13,28 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import { motion, AnimatePresence } from "motion/react";
 import {
-  Users, Cloud, ShieldCheck, Globe, FolderOpen, Workflow, Bot, Server,
-  Database, Boxes, Zap, FileText, GitBranch, KeyRound, AlertTriangle,
-  CheckCircle2, Lock, Radio, Rocket, ScrollText, Gauge, X,
+  Users,
+  Cloud,
+  ShieldCheck,
+  Globe,
+  FolderOpen,
+  Workflow,
+  Bot,
+  Server,
+  Database,
+  Boxes,
+  Zap,
+  FileText,
+  GitBranch,
+  KeyRound,
+  AlertTriangle,
+  CheckCircle2,
+  Lock,
+  Radio,
+  Rocket,
+  ScrollText,
+  Gauge,
+  X,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -26,12 +45,12 @@ type NodeData = {
   sub?: string;
   icon?: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   color?: string;
-  step?: number;          // execution order (lower = earlier)
-  role?: string;          // short tagline
-  desc?: string;          // detailed description
+  step?: number; // execution order (lower = earlier)
+  role?: string; // short tagline
+  desc?: string; // detailed description
   inputs?: string[];
   outputs?: string[];
-  active?: boolean;       // currently selected
+  active?: boolean; // currently selected
 };
 
 /* ------------------------------------------------------------------ */
@@ -45,9 +64,7 @@ function ServiceNode({ data }: NodeProps<NodeData>) {
     <div
       className="group relative flex cursor-pointer items-center gap-2 rounded-lg border bg-surface/95 px-2.5 py-1.5 text-foreground backdrop-blur transition"
       style={{
-        borderColor: active
-          ? color
-          : `color-mix(in oklab, ${color} 35%, var(--border))`,
+        borderColor: active ? color : `color-mix(in oklab, ${color} 35%, var(--border))`,
         boxShadow: active
           ? `0 0 0 2px ${color}, 0 0 24px -4px ${color}`
           : `0 0 0 1px ${color}1f, 0 4px 14px -8px ${color}66`,
@@ -97,7 +114,10 @@ function GroupNode({ data }: NodeProps<{ label: string; sub?: string; color: str
       }}
     >
       <div className="flex items-center gap-2 px-3 pt-2">
-        <span className="h-2 w-2 rounded-full" style={{ background: data.color, boxShadow: `0 0 8px ${data.color}` }} />
+        <span
+          className="h-2 w-2 rounded-full"
+          style={{ background: data.color, boxShadow: `0 0 8px ${data.color}` }}
+        />
         <span className="mono text-[10px] uppercase tracking-[0.2em]" style={{ color: data.color }}>
           {data.label}
         </span>
@@ -127,162 +147,495 @@ type ND = Omit<NodeData, "active">;
 
 const NODE_DEFS: { id: string; pos: { x: number; y: number }; data: ND }[] = [
   // ---------- Input ----------
-  { id: "user", pos: { x: COL.input, y: 60 },
-    data: { label: "Reviewer / User", sub: "engineer · TL", icon: Users, color: C.user, step: 1,
+  {
+    id: "user",
+    pos: { x: COL.input, y: 60 },
+    data: {
+      label: "Reviewer / User",
+      sub: "engineer · TL",
+      icon: Users,
+      color: C.user,
+      step: 1,
       role: "Người khởi tạo review",
       desc: "Reviewer mở Portal, dán link CR (Confluence/Jira) hoặc upload tài liệu. Đây là điểm bắt đầu của một phiên review mới.",
-      outputs: ["CR link", "uploaded files"] } },
-  { id: "portal", pos: { x: COL.input, y: 140 },
-    data: { label: "CR Review Portal", sub: "chat · versions", icon: ScrollText, color: C.user, step: 2,
+      outputs: ["CR link", "uploaded files"],
+    },
+  },
+  {
+    id: "portal",
+    pos: { x: COL.input, y: 140 },
+    data: {
+      label: "CR Review Portal",
+      sub: "chat · versions",
+      icon: ScrollText,
+      color: C.user,
+      step: 2,
       role: "Giao diện chat + lịch sử review",
       desc: "Portal lưu chat history, review versions, file upload và hiển thị kết quả GO/NO_GO. Mỗi CR có nhiều phiên review để so sánh.",
-      inputs: ["user actions"], outputs: ["POST /reviews"] } },
-  { id: "src-jira", pos: { x: COL.input, y: 340 },
-    data: { label: "ITSM / Jira", sub: "on-prem", icon: GitBranch, color: C.user,
+      inputs: ["user actions"],
+      outputs: ["POST /reviews"],
+    },
+  },
+  {
+    id: "src-jira",
+    pos: { x: COL.input, y: 340 },
+    data: {
+      label: "ITSM / Jira",
+      sub: "on-prem",
+      icon: GitBranch,
+      color: C.user,
       role: "Nguồn ITSM",
-      desc: "Hệ thống ITSM/Jira chứa metadata của CR: ticket, comment, link tới MR, attachment. Được Intent Agent fetch để hiểu ngữ cảnh." } },
-  { id: "src-conf", pos: { x: COL.input, y: 410 },
-    data: { label: "Confluence", sub: "cloud / on-prem", icon: FileText, color: C.user,
+      desc: "Hệ thống ITSM/Jira chứa metadata của CR: ticket, comment, link tới MR, attachment. Được Intent Agent fetch để hiểu ngữ cảnh.",
+    },
+  },
+  {
+    id: "src-conf",
+    pos: { x: COL.input, y: 410 },
+    data: {
+      label: "Confluence",
+      sub: "cloud / on-prem",
+      icon: FileText,
+      color: C.user,
       role: "Tài liệu CR",
-      desc: "Confluence là nơi viết CR document chính. Intent Agent đọc page, resolve link đính kèm và normalize sang markdown." } },
-  { id: "src-files", pos: { x: COL.input, y: 480 },
-    data: { label: "Uploaded Files", sub: "pdf · md · xlsx", icon: FolderOpen, color: C.user,
+      desc: "Confluence là nơi viết CR document chính. Intent Agent đọc page, resolve link đính kèm và normalize sang markdown.",
+    },
+  },
+  {
+    id: "src-files",
+    pos: { x: COL.input, y: 480 },
+    data: {
+      label: "Uploaded Files",
+      sub: "pdf · md · xlsx",
+      icon: FolderOpen,
+      color: C.user,
       role: "File bổ sung",
-      desc: "Người dùng có thể upload thêm tài liệu (runbook, diagram, spec). Lưu vào S3 và đưa vào CR package." } },
+      desc: "Người dùng có thể upload thêm tài liệu (runbook, diagram, spec). Lưu vào S3 và đưa vào CR package.",
+    },
+  },
 
   // ---------- API ----------
-  { id: "cloudfront", pos: { x: COL.api, y: 60 },
-    data: { label: "CloudFront", sub: "optional edge", icon: Globe, color: C.api,
+  {
+    id: "cloudfront",
+    pos: { x: COL.api, y: 60 },
+    data: {
+      label: "CloudFront",
+      sub: "optional edge",
+      icon: Globe,
+      color: C.api,
       role: "CDN edge",
-      desc: "Phục vụ static assets của Portal qua edge, giảm latency cho reviewer ở nhiều vùng." } },
-  { id: "amplify", pos: { x: COL.api, y: 140 },
-    data: { label: "AWS Amplify", sub: "portal UI", icon: Cloud, color: C.api,
+      desc: "Phục vụ static assets của Portal qua edge, giảm latency cho reviewer ở nhiều vùng.",
+    },
+  },
+  {
+    id: "amplify",
+    pos: { x: COL.api, y: 140 },
+    data: {
+      label: "AWS Amplify",
+      sub: "portal UI",
+      icon: Cloud,
+      color: C.api,
       role: "Hosting frontend",
-      desc: "Build & deploy Portal UI. CI/CD tự động khi merge vào main." } },
-  { id: "cognito", pos: { x: COL.api, y: 220 },
-    data: { label: "Amazon Cognito", sub: "auth · jwt", icon: ShieldCheck, color: C.api,
+      desc: "Build & deploy Portal UI. CI/CD tự động khi merge vào main.",
+    },
+  },
+  {
+    id: "cognito",
+    pos: { x: COL.api, y: 220 },
+    data: {
+      label: "Amazon Cognito",
+      sub: "auth · jwt",
+      icon: ShieldCheck,
+      color: C.api,
       role: "Xác thực người dùng",
-      desc: "Quản lý user pool, phát hành JWT. API Gateway validate token trước khi forward request." } },
-  { id: "apigw", pos: { x: COL.api, y: 310 },
-    data: { label: "API Gateway", sub: "CR Review API", icon: Zap, color: C.api, step: 3,
+      desc: "Quản lý user pool, phát hành JWT. API Gateway validate token trước khi forward request.",
+    },
+  },
+  {
+    id: "apigw",
+    pos: { x: COL.api, y: 310 },
+    data: {
+      label: "API Gateway",
+      sub: "CR Review API",
+      icon: Zap,
+      color: C.api,
+      step: 3,
       role: "Cổng vào backend",
       desc: "Nhận request từ Portal, validate JWT, throttling, sau đó kích hoạt Step Functions execution mới cho mỗi CR review.",
-      inputs: ["POST /reviews"], outputs: ["StartExecution"] } },
-  { id: "s3-upload", pos: { x: COL.api, y: 420 },
-    data: { label: "S3 · File Uploads", sub: "raw inputs", icon: Boxes, color: C.api,
+      inputs: ["POST /reviews"],
+      outputs: ["StartExecution"],
+    },
+  },
+  {
+    id: "s3-upload",
+    pos: { x: COL.api, y: 420 },
+    data: {
+      label: "S3 · File Uploads",
+      sub: "raw inputs",
+      icon: Boxes,
+      color: C.api,
       role: "Lưu file raw",
-      desc: "Lưu file người dùng upload (presigned URL). Intent Agent sẽ đọc lại khi build CR package." } },
+      desc: "Lưu file người dùng upload (presigned URL). Intent Agent sẽ đọc lại khi build CR package.",
+    },
+  },
 
   // ---------- Orchestration ----------
-  { id: "stepfn", pos: { x: COL.orch, y: 90 },
-    data: { label: "Step Functions", sub: "CR Review Workflow", icon: Workflow, color: C.orch, step: 4,
+  {
+    id: "stepfn",
+    pos: { x: COL.orch, y: 90 },
+    data: {
+      label: "Step Functions",
+      sub: "CR Review Workflow",
+      icon: Workflow,
+      color: C.orch,
+      step: 4,
       role: "Orchestrator chính",
       desc: "State machine điều phối toàn bộ workflow: Intent → routing → DOCUMENT_ONLY hoặc CODE_AWARE → Aggregate → Decide. Có retry, parallel, audit history.",
-      outputs: ["invoke agents", "branching"] } },
-  { id: "intent", pos: { x: COL.orch, y: 200 },
-    data: { label: "CR Intent Agent", sub: "resolve · routing", icon: Bot, color: C.orch, step: 5,
+      outputs: ["invoke agents", "branching"],
+    },
+  },
+  {
+    id: "intent",
+    pos: { x: COL.orch, y: 200 },
+    data: {
+      label: "CR Intent Agent",
+      sub: "resolve · routing",
+      icon: Bot,
+      color: C.orch,
+      step: 5,
       role: "Hiểu ý định CR + định tuyến",
       desc: "Fetch ITSM/Confluence/files, resolve link (MR, image tag, SHA), normalize sang markdown, phát hiện có code change hay không, rồi tạo routing decision.",
-      inputs: ["CR link"], outputs: ["DOCUMENT_ONLY | CODE_AWARE", "CR package"] } },
-  { id: "s3-pkg", pos: { x: COL.orch, y: 410 },
-    data: { label: "S3 · CR Package", sub: "normalized md", icon: Boxes, color: C.data,
+      inputs: ["CR link"],
+      outputs: ["DOCUMENT_ONLY | CODE_AWARE", "CR package"],
+    },
+  },
+  {
+    id: "s3-pkg",
+    pos: { x: COL.orch, y: 410 },
+    data: {
+      label: "S3 · CR Package",
+      sub: "normalized md",
+      icon: Boxes,
+      color: C.data,
       role: "CR đã chuẩn hoá",
-      desc: "Markdown CR package (đã merge mọi nguồn) — input chung cho cả Document và Code agents." } },
-  { id: "ddb-sess", pos: { x: COL.orch, y: 480 },
-    data: { label: "DynamoDB", sub: "sessions · versions", icon: Database, color: C.data,
+      desc: "Markdown CR package (đã merge mọi nguồn) — input chung cho cả Document và Code agents.",
+    },
+  },
+  {
+    id: "ddb-sess",
+    pos: { x: COL.orch, y: 480 },
+    data: {
+      label: "DynamoDB",
+      sub: "sessions · versions",
+      icon: Database,
+      color: C.data,
       role: "State Portal",
-      desc: "Lưu review sessions, version, chat history. Portal đọc trực tiếp để render lịch sử." } },
+      desc: "Lưu review sessions, version, chat history. Portal đọc trực tiếp để render lịch sử.",
+    },
+  },
 
   // ---------- DOCUMENT_ONLY ----------
-  { id: "d-comp", pos: { x: COL.paths, y: 70 },
-    data: { label: "Completeness", sub: "λ agent", icon: CheckCircle2, color: C.doc, step: 6,
+  {
+    id: "d-comp",
+    pos: { x: COL.paths, y: 70 },
+    data: {
+      label: "Completeness",
+      sub: "λ agent",
+      icon: CheckCircle2,
+      color: C.doc,
+      step: 6,
       role: "Kiểm tra đầy đủ",
-      desc: "Đảm bảo CR có đủ mục bắt buộc: mục tiêu, scope, rollout, rollback, communication." } },
-  { id: "d-cons", pos: { x: COL.paths + 130, y: 70 },
-    data: { label: "Consistency", sub: "λ agent", icon: ScrollText, color: C.doc, step: 6,
+      desc: "Đảm bảo CR có đủ mục bắt buộc: mục tiêu, scope, rollout, rollback, communication.",
+    },
+  },
+  {
+    id: "d-cons",
+    pos: { x: COL.paths + 130, y: 70 },
+    data: {
+      label: "Consistency",
+      sub: "λ agent",
+      icon: ScrollText,
+      color: C.doc,
+      step: 6,
       role: "Đối chiếu thông tin",
-      desc: "Phát hiện mâu thuẫn giữa các phần của CR: scope vs rollout, owner vs approver…" } },
-  { id: "d-vgap", pos: { x: COL.paths + 260, y: 70 },
-    data: { label: "Verification Gap", sub: "λ agent", icon: AlertTriangle, color: C.doc, step: 6,
+      desc: "Phát hiện mâu thuẫn giữa các phần của CR: scope vs rollout, owner vs approver…",
+    },
+  },
+  {
+    id: "d-vgap",
+    pos: { x: COL.paths + 260, y: 70 },
+    data: {
+      label: "Verification Gap",
+      sub: "λ agent",
+      icon: AlertTriangle,
+      color: C.doc,
+      step: 6,
       role: "Khoảng trống verify",
-      desc: "Đánh giá test plan/UAT của CR. Báo nếu thiếu evidence chứng minh thay đổi hoạt động." } },
-  { id: "d-roll", pos: { x: COL.paths, y: 150 },
-    data: { label: "Rollout / Runbook", sub: "λ agent", icon: Rocket, color: C.doc, step: 6,
+      desc: "Đánh giá test plan/UAT của CR. Báo nếu thiếu evidence chứng minh thay đổi hoạt động.",
+    },
+  },
+  {
+    id: "d-roll",
+    pos: { x: COL.paths, y: 150 },
+    data: {
+      label: "Rollout / Runbook",
+      sub: "λ agent",
+      icon: Rocket,
+      color: C.doc,
+      step: 6,
       role: "Đánh giá runbook",
-      desc: "Phân tích kế hoạch rollout, rollback, readiness gate; phát hiện step thiếu hoặc rủi ro." } },
-  { id: "d-sec", pos: { x: COL.paths + 130, y: 150 },
-    data: { label: "Security Review", sub: "λ agent", icon: Lock, color: C.doc, step: 6,
+      desc: "Phân tích kế hoạch rollout, rollback, readiness gate; phát hiện step thiếu hoặc rủi ro.",
+    },
+  },
+  {
+    id: "d-sec",
+    pos: { x: COL.paths + 130, y: 150 },
+    data: {
+      label: "Security Review",
+      sub: "λ agent",
+      icon: Lock,
+      color: C.doc,
+      step: 6,
       role: "Risk an ninh từ document",
-      desc: "Phát hiện thay đổi nhạy cảm (IAM, network, data exposure) chỉ từ mô tả CR." } },
+      desc: "Phát hiện thay đổi nhạy cảm (IAM, network, data exposure) chỉ từ mô tả CR.",
+    },
+  },
 
   // ---------- CODE_AWARE ----------
-  { id: "fargate", pos: { x: COL.paths, y: 330 },
-    data: { label: "ECS · Fargate Workspace", sub: "long-running", icon: Server, color: C.code, step: 6,
+  {
+    id: "fargate",
+    pos: { x: COL.paths, y: 330 },
+    data: {
+      label: "ECS · Fargate Workspace",
+      sub: "long-running",
+      icon: Server,
+      color: C.code,
+      step: 6,
       role: "1 CR = 1 workspace",
       desc: "Long-running task: clone repos, checkout đúng SHA, build diff, dựng CodeGraph index, expose Workspace API & MCP tools. Read-only, isolate trong VPC.",
-      outputs: ["READY signal", "MCP tools"] } },
-  { id: "secrets", pos: { x: COL.paths + 260, y: 330 },
-    data: { label: "Secrets Manager", sub: "read-only", icon: KeyRound, color: C.data,
+      outputs: ["READY signal", "MCP tools"],
+    },
+  },
+  {
+    id: "secrets",
+    pos: { x: COL.paths + 260, y: 330 },
+    data: {
+      label: "Secrets Manager",
+      sub: "read-only",
+      icon: KeyRound,
+      color: C.data,
       role: "Cung cấp credential",
-      desc: "Inject token clone repo, registry token. Read-only scope, không cho phép write." } },
-  { id: "ddb-ws", pos: { x: COL.paths + 260, y: 410 },
-    data: { label: "Workspace Registry", sub: "DynamoDB", icon: Database, color: C.data,
+      desc: "Inject token clone repo, registry token. Read-only scope, không cho phép write.",
+    },
+  },
+  {
+    id: "ddb-ws",
+    pos: { x: COL.paths + 260, y: 410 },
+    data: {
+      label: "Workspace Registry",
+      sub: "DynamoDB",
+      icon: Database,
+      color: C.data,
       role: "Theo dõi workspace",
-      desc: "Lưu trạng thái workspace (READY/BUSY/STOPPED), TTL để cleanup tự động." } },
-  { id: "s3-audit", pos: { x: COL.paths, y: 490 },
-    data: { label: "S3 · Audit Trail", sub: "every tool call", icon: Boxes, color: C.data,
+      desc: "Lưu trạng thái workspace (READY/BUSY/STOPPED), TTL để cleanup tự động.",
+    },
+  },
+  {
+    id: "s3-audit",
+    pos: { x: COL.paths, y: 490 },
+    data: {
+      label: "S3 · Audit Trail",
+      sub: "every tool call",
+      icon: Boxes,
+      color: C.data,
       role: "Bằng chứng audit",
-      desc: "Mỗi tool call (request + response) được append. Immutable, dùng cho compliance và replay." } },
-  { id: "gateway", pos: { x: COL.paths + 130, y: 570 },
-    data: { label: "Code Tool Gateway", sub: "λ · MCP proxy", icon: Zap, color: C.code, step: 7,
+      desc: "Mỗi tool call (request + response) được append. Immutable, dùng cho compliance và replay.",
+    },
+  },
+  {
+    id: "gateway",
+    pos: { x: COL.paths + 130, y: 570 },
+    data: {
+      label: "Code Tool Gateway",
+      sub: "λ · MCP proxy",
+      icon: Zap,
+      color: C.code,
+      step: 7,
       role: "Cổng truy vấn code",
       desc: "Lambda đứng giữa agents và workspace. Mọi tool call đi qua gateway → audit + rate limit + chuẩn hoá schema MCP.",
-      inputs: ["agent tool.call"], outputs: ["workspace API"] } },
-  { id: "c-hidden", pos: { x: COL.paths + 10, y: 660 },
-    data: { label: "Hidden Impact", sub: "λ agent", icon: AlertTriangle, color: C.code, step: 8,
+      inputs: ["agent tool.call"],
+      outputs: ["workspace API"],
+    },
+  },
+  {
+    id: "c-hidden",
+    pos: { x: COL.paths + 10, y: 660 },
+    data: {
+      label: "Hidden Impact",
+      sub: "λ agent",
+      icon: AlertTriangle,
+      color: C.code,
+      step: 8,
       role: "Tác động ẩn",
-      desc: "Tìm module bị ảnh hưởng gián tiếp (callers, transitive deps) ngoài diff trực tiếp." } },
-  { id: "c-vgap", pos: { x: COL.paths + 210, y: 660 },
-    data: { label: "Verification Gap", sub: "λ agent", icon: CheckCircle2, color: C.code, step: 8,
+      desc: "Tìm module bị ảnh hưởng gián tiếp (callers, transitive deps) ngoài diff trực tiếp.",
+    },
+  },
+  {
+    id: "c-vgap",
+    pos: { x: COL.paths + 210, y: 660 },
+    data: {
+      label: "Verification Gap",
+      sub: "λ agent",
+      icon: CheckCircle2,
+      color: C.code,
+      step: 8,
       role: "Coverage gap",
-      desc: "Đối chiếu test coverage với scope thay đổi thực tế. Báo phần code thay đổi nhưng chưa test." } },
-  { id: "c-sec", pos: { x: COL.paths + 10, y: 720 },
-    data: { label: "Security & PII", sub: "λ agent", icon: Lock, color: C.code, step: 8,
+      desc: "Đối chiếu test coverage với scope thay đổi thực tế. Báo phần code thay đổi nhưng chưa test.",
+    },
+  },
+  {
+    id: "c-sec",
+    pos: { x: COL.paths + 10, y: 720 },
+    data: {
+      label: "Security & PII",
+      sub: "λ agent",
+      icon: Lock,
+      color: C.code,
+      step: 8,
       role: "Security trên code",
-      desc: "Quét secret leak, PII trong log, IAM/scope mở rộng, dependency CVE." } },
-  { id: "c-kafka", pos: { x: COL.paths + 210, y: 720 },
-    data: { label: "Kafka / vs Prod", sub: "λ agent", icon: Radio, color: C.code, step: 8,
+      desc: "Quét secret leak, PII trong log, IAM/scope mở rộng, dependency CVE.",
+    },
+  },
+  {
+    id: "c-kafka",
+    pos: { x: COL.paths + 210, y: 720 },
+    data: {
+      label: "Kafka / vs Prod",
+      sub: "λ agent",
+      icon: Radio,
+      color: C.code,
+      step: 8,
       role: "Event schema & env diff",
-      desc: "Kiểm tra breaking change schema Kafka, so sánh config/flag/image tag giữa non-prod và prod." } },
+      desc: "Kiểm tra breaking change schema Kafka, so sánh config/flag/image tag giữa non-prod và prod.",
+    },
+  },
 
   // ---------- Evaluation ----------
-  { id: "agg", pos: { x: COL.eval, y: 80 },
-    data: { label: "Evaluation Aggregator", sub: "λ agent", icon: Bot, color: C.result, step: 9,
+  {
+    id: "agg",
+    pos: { x: COL.eval, y: 80 },
+    data: {
+      label: "Evaluation Aggregator",
+      sub: "λ agent",
+      icon: Bot,
+      color: C.result,
+      step: 9,
       role: "Tổng hợp findings",
-      desc: "Merge findings từ cả Document và Code agents, khử trùng, gom theo theme, gắn evidence link." } },
-  { id: "risk", pos: { x: COL.eval, y: 220 },
-    data: { label: "Risk Scoring Engine", sub: "score · confidence", icon: Gauge, color: C.result, step: 10,
+      desc: "Merge findings từ cả Document và Code agents, khử trùng, gom theo theme, gắn evidence link.",
+    },
+  },
+  {
+    id: "risk",
+    pos: { x: COL.eval, y: 220 },
+    data: {
+      label: "Risk Scoring Engine",
+      sub: "score · confidence",
+      icon: Gauge,
+      color: C.result,
+      step: 10,
       role: "Chấm điểm rủi ro",
-      desc: "Tính risk score theo trọng số: impact × confidence × blast radius. Output mức rủi ro tổng." } },
-  { id: "report", pos: { x: COL.eval, y: 340 },
-    data: { label: "Final Report", sub: "evidence · rationale", icon: FileText, color: C.result, step: 11,
+      desc: "Tính risk score theo trọng số: impact × confidence × blast radius. Output mức rủi ro tổng.",
+    },
+  },
+  {
+    id: "report",
+    pos: { x: COL.eval, y: 340 },
+    data: {
+      label: "Final Report",
+      sub: "evidence · rationale",
+      icon: FileText,
+      color: C.result,
+      step: 11,
       role: "Quyết định cuối",
       desc: "Render report có rationale + evidence link. Bốn outcome: GO / GO_WITH_WARNING / NEEDS_MANUAL_REVIEW / NO_GO. Publish ngược về Portal.",
-      outputs: ["GO", "GO_WITH_WARNING", "NEEDS_MANUAL_REVIEW", "NO_GO"] } },
+      outputs: ["GO", "GO_WITH_WARNING", "NEEDS_MANUAL_REVIEW", "NO_GO"],
+    },
+  },
 ];
 
 const GROUPS = [
-  { id: "g-input", x: COL.input - 20, y: 20, w: 210, h: 540, label: "1 · User & Input", color: C.user },
-  { id: "g-api", x: COL.api - 20, y: 20, w: 210, h: 540, label: "2 · Frontend & API", color: C.api },
-  { id: "g-orch", x: COL.orch - 20, y: 20, w: 230, h: 540, label: "3 · Orchestration", color: C.orch },
-  { id: "g-doc", x: COL.paths - 20, y: 20, w: 410, h: 220, label: "A · DOCUMENT_ONLY", sub: "no code change", color: C.doc },
-  { id: "g-code", x: COL.paths - 20, y: 290, w: 410, h: 480, label: "B · CODE_AWARE", sub: "1 CR = 1 Fargate workspace", color: C.code },
-  { id: "g-result", x: COL.eval - 20, y: 20, w: 220, h: 540, label: "4 · Evaluation & Results", color: C.result },
+  {
+    id: "g-input",
+    x: COL.input - 20,
+    y: 20,
+    w: 210,
+    h: 540,
+    label: "1 · User & Input",
+    color: C.user,
+  },
+  {
+    id: "g-api",
+    x: COL.api - 20,
+    y: 20,
+    w: 210,
+    h: 540,
+    label: "2 · Frontend & API",
+    color: C.api,
+  },
+  {
+    id: "g-orch",
+    x: COL.orch - 20,
+    y: 20,
+    w: 230,
+    h: 540,
+    label: "3 · Orchestration",
+    color: C.orch,
+  },
+  {
+    id: "g-doc",
+    x: COL.paths - 20,
+    y: 20,
+    w: 410,
+    h: 220,
+    label: "A · DOCUMENT_ONLY",
+    sub: "no code change",
+    color: C.doc,
+  },
+  {
+    id: "g-code",
+    x: COL.paths - 20,
+    y: 290,
+    w: 410,
+    h: 480,
+    label: "B · CODE_AWARE",
+    sub: "1 CR = 1 Fargate workspace",
+    color: C.code,
+  },
+  {
+    id: "g-result",
+    x: COL.eval - 20,
+    y: 20,
+    w: 220,
+    h: 540,
+    label: "4 · Evaluation & Results",
+    color: C.result,
+  },
 ];
 
 function makeEdges(): Edge[] {
-  const e = (id: string, source: string, target: string, color: string, label?: string, animated = false): Edge => ({
-    id, source, target, label, animated, type: "smoothstep",
+  const e = (
+    id: string,
+    source: string,
+    target: string,
+    color: string,
+    label?: string,
+    animated = false,
+  ): Edge => ({
+    id,
+    source,
+    target,
+    label,
+    animated,
+    type: "smoothstep",
     markerEnd: { type: MarkerType.ArrowClosed, color },
     style: { stroke: color, strokeWidth: 1.4 },
     labelStyle: { fill: "var(--muted-foreground)", fontSize: 9.5 },
@@ -334,14 +687,21 @@ function makeEdges(): Edge[] {
 export function ArchitectureFlow() {
   const [selectedId, setSelectedId] = useState<string | null>("intent");
 
-  const nodes = useMemo<Node<NodeData>[]>(() => {
-    const gs: Node<any>[] = GROUPS.map((g) => ({
-      id: g.id, type: "group", position: { x: g.x, y: g.y },
+  const nodes = useMemo<Node[]>(() => {
+    const gs: Node<{ label: string; sub?: string; color: string }>[] = GROUPS.map((g) => ({
+      id: g.id,
+      type: "group",
+      position: { x: g.x, y: g.y },
       data: { label: g.label, sub: g.sub, color: g.color },
-      style: { width: g.w, height: g.h }, selectable: false, draggable: false, zIndex: 0,
+      style: { width: g.w, height: g.h },
+      selectable: false,
+      draggable: false,
+      zIndex: 0,
     }));
     const items: Node<NodeData>[] = NODE_DEFS.map((d) => ({
-      id: d.id, type: "service", position: d.pos,
+      id: d.id,
+      type: "service",
+      position: d.pos,
       data: { ...d.data, active: d.id === selectedId },
     }));
     return [...gs, ...items];
@@ -368,20 +728,31 @@ export function ArchitectureFlow() {
 
   // ordered list for sequence rail
   const sequence = useMemo(
-    () => [...NODE_DEFS].filter((n) => n.data.step !== undefined).sort((a, b) => a.data.step! - b.data.step!),
+    () =>
+      [...NODE_DEFS]
+        .filter((n) => n.data.step !== undefined)
+        .sort((a, b) => a.data.step! - b.data.step!),
     [],
   );
 
   return (
-    <div className="glass overflow-hidden rounded-2xl border border-border" style={{ boxShadow: "var(--shadow-soft)" }}>
+    <div
+      className="glass overflow-hidden rounded-2xl border border-border"
+      style={{ boxShadow: "var(--shadow-soft)" }}
+    >
       <div className="flex items-center justify-between border-b border-border bg-background/40 px-5 py-3">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full" style={{ background: "var(--primary)", boxShadow: "0 0 8px var(--primary)" }} />
+          <span
+            className="h-2 w-2 rounded-full"
+            style={{ background: "var(--primary)", boxShadow: "0 0 8px var(--primary)" }}
+          />
           <span className="mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
             interactive · click vào node để xem chi tiết
           </span>
         </div>
-        <div className="mono hidden text-[10px] text-muted-foreground md:block">drag · zoom · pan</div>
+        <div className="mono hidden text-[10px] text-muted-foreground md:block">
+          drag · zoom · pan
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-[1.7fr_1fr]">
@@ -406,8 +777,12 @@ export function ArchitectureFlow() {
             <Background gap={20} size={1} color="var(--border)" />
             <Controls showInteractive={false} className="!bg-surface !border !border-border" />
             <MiniMap
-              pannable zoomable
-              nodeColor={(n: any) => (n.data?.color as string) ?? "var(--primary)"}
+              pannable
+              zoomable
+              nodeColor={(n) => {
+                const data = n.data as { color?: string } | undefined;
+                return data?.color ?? "var(--primary)";
+              }}
               maskColor="oklch(0.16 0.03 265 / 0.6)"
               style={{ background: "var(--background)", border: "1px solid var(--border)" }}
             />
@@ -435,8 +810,10 @@ export function ArchitectureFlow() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2">
                       {selected.icon && (
-                        <div className="grid h-8 w-8 place-items-center rounded-md"
-                          style={{ background: `${selected.color}1f`, color: selected.color }}>
+                        <div
+                          className="grid h-8 w-8 place-items-center rounded-md"
+                          style={{ background: `${selected.color}1f`, color: selected.color }}
+                        >
                           <selected.icon className="h-4 w-4" />
                         </div>
                       )}
@@ -460,8 +837,10 @@ export function ArchitectureFlow() {
 
                   {selected.step !== undefined && (
                     <div className="mono mt-3 inline-flex items-center gap-2 rounded-full border border-border px-2.5 py-1 text-[10px]">
-                      <span className="grid h-4 w-4 place-items-center rounded-full"
-                        style={{ background: selected.color, color: "var(--background)" }}>
+                      <span
+                        className="grid h-4 w-4 place-items-center rounded-full"
+                        style={{ background: selected.color, color: "var(--background)" }}
+                      >
                         {selected.step}
                       </span>
                       <span className="uppercase tracking-[0.18em] text-muted-foreground">
@@ -485,20 +864,30 @@ export function ArchitectureFlow() {
                     <div className="mt-4 grid grid-cols-2 gap-2">
                       {selected.inputs?.length ? (
                         <div className="rounded-md border border-border bg-surface/50 p-2">
-                          <div className="mono text-[9.5px] uppercase tracking-wider text-muted-foreground">inputs</div>
+                          <div className="mono text-[9.5px] uppercase tracking-wider text-muted-foreground">
+                            inputs
+                          </div>
                           <ul className="mt-1 space-y-0.5">
                             {selected.inputs.map((x) => (
-                              <li key={x} className="mono text-[10.5px] text-foreground/85">· {x}</li>
+                              <li key={x} className="mono text-[10.5px] text-foreground/85">
+                                · {x}
+                              </li>
                             ))}
                           </ul>
                         </div>
-                      ) : <div />}
+                      ) : (
+                        <div />
+                      )}
                       {selected.outputs?.length ? (
                         <div className="rounded-md border border-border bg-surface/50 p-2">
-                          <div className="mono text-[9.5px] uppercase tracking-wider text-muted-foreground">outputs</div>
+                          <div className="mono text-[9.5px] uppercase tracking-wider text-muted-foreground">
+                            outputs
+                          </div>
                           <ul className="mt-1 space-y-0.5">
                             {selected.outputs.map((x) => (
-                              <li key={x} className="mono text-[10.5px] text-foreground/85">· {x}</li>
+                              <li key={x} className="mono text-[10.5px] text-foreground/85">
+                                · {x}
+                              </li>
                             ))}
                           </ul>
                         </div>
@@ -509,7 +898,8 @@ export function ArchitectureFlow() {
               ) : (
                 <motion.div
                   key="empty"
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                   className="mono py-6 text-center text-[11px] text-muted-foreground"
                 >
                   Click vào một node để xem mô tả &amp; thứ tự
@@ -537,13 +927,19 @@ export function ArchitectureFlow() {
                         background: active ? `${n.data.color}14` : "transparent",
                       }}
                     >
-                      <span className="mono grid h-5 w-5 shrink-0 place-items-center rounded-full text-[9.5px] font-bold"
-                        style={{ background: n.data.color, color: "var(--background)" }}>
+                      <span
+                        className="mono grid h-5 w-5 shrink-0 place-items-center rounded-full text-[9.5px] font-bold"
+                        style={{ background: n.data.color, color: "var(--background)" }}
+                      >
                         {String(n.data.step).padStart(2, "0")}
                       </span>
-                      {Icon && <Icon className="h-3.5 w-3.5 shrink-0" style={{ color: n.data.color }} />}
+                      {Icon && (
+                        <Icon className="h-3.5 w-3.5 shrink-0" style={{ color: n.data.color }} />
+                      )}
                       <span className="truncate text-[11.5px]">{n.data.label}</span>
-                      <span className="mono ml-auto truncate text-[9.5px] text-muted-foreground">{n.data.role}</span>
+                      <span className="mono ml-auto truncate text-[9.5px] text-muted-foreground">
+                        {n.data.role}
+                      </span>
                     </button>
                   </li>
                 );

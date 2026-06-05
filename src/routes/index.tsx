@@ -1,640 +1,1449 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import { useState, type ComponentType, type ReactNode } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import {
-  GitBranch, FileText, Network, Bot, ShieldCheck, Boxes, Workflow, Server,
-  Search, AlertTriangle, Radio, History, Rocket, Lock, Activity, Database,
-  Zap, ArrowRight, CheckCircle2, Sparkles, Cpu,
+  Activity,
+  AlertTriangle,
+  Archive,
+  ArrowRight,
+  BarChart3,
+  Bot,
+  Brain,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardCheck,
+  Clock,
+  Code2,
+  Cpu,
+  Database,
+  FileCode2,
+  FileSearch,
+  GitBranch,
+  Gauge,
+  LayoutDashboard,
+  Lock,
+  Network,
+  Play,
+  Radar,
+  Search,
+  Server,
+  ShieldCheck,
+  Sparkles,
+  Split,
+  UserCheck,
+  Workflow,
 } from "lucide-react";
-import { DataFlowSimulator } from "@/components/DataFlowSimulator";
-import { ArchitectureFlow } from "@/components/ArchitectureFlow";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
+  Radar as RadarShape,
+  RadarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { DataFlowReactFlow } from "@/components/DataFlowReactFlow";
+import { KnowledgeGraphFlow } from "@/components/KnowledgeGraphFlow";
+import {
+  agents,
+  coreDecisions,
+  demoSteps,
+  findings,
+  goLiveChecks,
+  graphLifecycle,
+  highLevelFlow,
+  navItems,
+  rubricRows,
+  scoringCriteria,
+  valueCards,
+  workspaceEndpoints,
+  type ViewId,
+} from "@/data/crSentinel";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Solution Tour — AI CR Review Platform" },
-      { name: "description", content: "Một chuyến tham quan trực quan qua hệ thống AI-assisted Change Request Review: từ một link Confluence đến quyết định rủi ro có bằng chứng." },
-      { property: "og:title", content: "Solution Tour — AI CR Review Platform" },
-      { property: "og:description", content: "Khám phá cách 1 CR = 1 Code Workspace giúp AI agents review code thông minh, an toàn và có audit." },
+      { title: "CR-Sentinel - AI-Assisted Change Review" },
+      {
+        name: "description",
+        content:
+          "Interactive solution showcase for CR-Sentinel, an AI-assisted Change Review and Go-Live Intelligence Platform.",
+      },
+      { property: "og:title", content: "CR-Sentinel" },
+      {
+        property: "og:description",
+        content:
+          "From fragmented CR input to evidence-backed GO / NO-GO decisions, ecosystem impact graph, and incident-driven skill learning.",
+      },
     ],
   }),
-  component: SolutionTour,
+  component: CRSentinelShowcase,
 });
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] as const } },
+const viewTitles: Record<ViewId, string> = {
+  overview: "Overview",
+  "data-flow": "End-to-End Data Flow",
+  architecture: "Architecture",
+  agents: "Agent System",
+  workspace: "Code Workspace",
+  graph: "Knowledge Graph",
+  "go-live": "Go-Live Gate",
+  learning: "Incident Learning",
+  rubric: "Rubric Scorecard",
+  demo: "Demo Scenario",
 };
 
-function SolutionTour() {
+const viewIcons: Record<ViewId, ComponentType<{ className?: string }>> = {
+  overview: LayoutDashboard,
+  "data-flow": Workflow,
+  architecture: Network,
+  agents: Bot,
+  workspace: Code2,
+  graph: Database,
+  "go-live": ShieldCheck,
+  learning: Brain,
+  rubric: BarChart3,
+  demo: Play,
+};
+
+function CRSentinelShowcase() {
+  const [activeView, setActiveView] = useState<ViewId>("overview");
+  const [query, setQuery] = useState("");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      <Nav />
-      <Hero />
-      <Problem />
-      <BigIdea />
-      <Journey />
-      <Architecture />
-      <Simulation />
-      <Agents />
-      <Evidence />
-      <Why />
-      <Footer />
+    <main className="min-h-screen bg-background text-foreground">
+      <div className="fixed inset-0 grid-bg opacity-35" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_20%_5%,oklch(0.78_0.16_205_/_0.17),transparent_30%),radial-gradient(circle_at_85%_15%,oklch(0.7_0.22_310_/_0.16),transparent_32%),radial-gradient(circle_at_55%_95%,oklch(0.76_0.17_155_/_0.11),transparent_35%)]" />
+      <div
+        className={`relative grid min-h-screen transition-[grid-template-columns] duration-300 ${
+          sidebarCollapsed
+            ? "lg:grid-cols-[88px_minmax(0,1fr)]"
+            : "lg:grid-cols-[280px_minmax(0,1fr)]"
+        }`}
+      >
+        <SidebarNav
+          activeView={activeView}
+          setActiveView={setActiveView}
+          collapsed={sidebarCollapsed}
+          setCollapsed={setSidebarCollapsed}
+        />
+        <section className="min-w-0">
+          <TopHeader
+            activeView={activeView}
+            query={query}
+            setQuery={setQuery}
+            setActiveView={setActiveView}
+          />
+          <div className="mx-auto max-w-[1540px] px-4 pb-10 pt-4 sm:px-6 lg:px-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeView}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25 }}
+              >
+                <View activeView={activeView} query={query} setActiveView={setActiveView} />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }
 
-/* ---------------- NAV ---------------- */
-function Nav() {
+function SidebarNav({
+  activeView,
+  setActiveView,
+  collapsed,
+  setCollapsed,
+}: {
+  activeView: ViewId;
+  setActiveView: (view: ViewId) => void;
+  collapsed: boolean;
+  setCollapsed: (collapsed: boolean) => void;
+}) {
   return (
-    <header className="sticky top-0 z-50 glass">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-2.5">
-          <div className="grid h-8 w-8 place-items-center rounded-md" style={{ background: "var(--grad-cool)" }}>
-            <Sparkles className="h-4 w-4 text-background" />
-          </div>
-          <span className="font-display text-lg font-semibold tracking-tight">CR.Review<span className="text-primary">/AI</span></span>
+    <aside
+      className={`sticky top-0 z-30 hidden h-screen border-r border-border bg-background/80 backdrop-blur-xl transition-[padding] duration-300 lg:block ${
+        collapsed ? "p-3" : "p-4"
+      }`}
+    >
+      <div className="flex h-full flex-col">
+        <div className={`mb-7 flex gap-2 ${collapsed ? "flex-col" : "items-center"}`}>
+          <button
+            type="button"
+            onClick={() => setActiveView("overview")}
+            className={`flex min-w-0 items-center rounded-lg border border-cyan/30 bg-cyan/10 text-left transition ${
+              collapsed ? "justify-center p-2.5" : "flex-1 gap-3 p-3"
+            }`}
+            title="CR-Sentinel"
+          >
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-cyan text-background shadow-cyan">
+              <Radar className="h-5 w-5" />
+            </div>
+            {!collapsed && (
+              <div className="min-w-0">
+                <div className="truncate font-display text-lg font-bold tracking-tight">
+                  CR-Sentinel
+                </div>
+                <div className="mono text-[10px] uppercase tracking-[0.2em] text-cyan">
+                  control center
+                </div>
+              </div>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setCollapsed(!collapsed)}
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-border bg-surface text-muted-foreground transition hover:border-cyan hover:text-cyan"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </button>
         </div>
-        <nav className="hidden gap-7 text-sm text-muted-foreground md:flex">
-          <a href="#problem" className="hover:text-foreground">Vấn đề</a>
-          <a href="#idea" className="hover:text-foreground">Ý tưởng</a>
-          <a href="#journey" className="hover:text-foreground">Hành trình</a>
-          <a href="#architecture" className="hover:text-foreground">Kiến trúc</a>
-          <a href="#simulation" className="hover:text-foreground">Mô phỏng</a>
-          <a href="#agents" className="hover:text-foreground">Agents</a>
-          <a href="#why" className="hover:text-foreground">Vì sao</a>
+
+        <nav className="space-y-1">
+          {navItems.map((item, index) => {
+            const Icon = viewIcons[item.id];
+            const active = activeView === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActiveView(item.id)}
+                title={item.label}
+                className={`flex w-full items-center rounded-lg border text-left transition ${
+                  collapsed ? "justify-center px-2 py-3" : "gap-3 px-3 py-2.5"
+                }`}
+                style={{
+                  borderColor: active ? "var(--cyan)" : "transparent",
+                  background: active ? "oklch(0.78 0.16 205 / 0.12)" : "transparent",
+                  color: active ? "var(--foreground)" : "var(--muted-foreground)",
+                }}
+              >
+                {!collapsed && (
+                  <span className="mono w-5 text-[10px]">{String(index + 1).padStart(2, "0")}</span>
+                )}
+                <Icon className="h-4 w-4 shrink-0" />
+                {!collapsed && <span className="text-sm font-medium">{item.label}</span>}
+              </button>
+            );
+          })}
         </nav>
-        <a href="#journey" className="rounded-md border border-border px-3.5 py-1.5 text-sm font-medium transition hover:border-primary hover:text-primary">
-          Bắt đầu tour →
-        </a>
+
+        <div
+          className={`mt-auto rounded-lg border border-border bg-surface/55 ${
+            collapsed ? "p-3" : "p-4"
+          }`}
+        >
+          <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            {collapsed ? "demo" : "demo status"}
+          </div>
+          <div className={`mt-3 flex items-center gap-2 ${collapsed ? "justify-center" : ""}`}>
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-magenta opacity-70" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-magenta" />
+            </span>
+            {!collapsed && <span className="text-sm font-semibold">NO_GO_PENDING_RESCAN</span>}
+          </div>
+          {!collapsed && (
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+              Tag drift detected one hour before go-live.
+            </p>
+          )}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function TopHeader({
+  activeView,
+  query,
+  setQuery,
+  setActiveView,
+}: {
+  activeView: ViewId;
+  query: string;
+  setQuery: (query: string) => void;
+  setActiveView: (view: ViewId) => void;
+}) {
+  return (
+    <header className="sticky top-0 z-20 border-b border-border bg-background/75 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[1540px] flex-col gap-3 px-4 py-3 sm:px-6 lg:px-8 xl:flex-row xl:items-center xl:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="font-display text-xl font-bold tracking-tight lg:hidden">
+              CR-Sentinel
+            </span>
+            <span className="rounded-full border border-purple/40 bg-purple/10 px-3 py-1 text-xs font-medium text-purple">
+              Hackathon 2026 Solution Showcase
+            </span>
+          </div>
+          <div className="mt-1 text-sm text-muted-foreground">{viewTitles[activeView]}</div>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <label className="relative min-w-0 sm:w-[320px]">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search flow, agent, requirement..."
+              className="h-10 w-full rounded-lg border border-border bg-surface/80 pl-9 pr-3 text-sm outline-none transition placeholder:text-muted-foreground focus:border-cyan"
+            />
+          </label>
+          <button
+            type="button"
+            onClick={() => setActiveView("demo")}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-cyan px-4 text-sm font-semibold text-background shadow-cyan"
+          >
+            <Play className="h-4 w-4" />
+            Run Demo Flow
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveView("rubric")}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-border bg-surface/80 px-4 text-sm font-semibold hover:border-purple hover:text-purple"
+          >
+            <BarChart3 className="h-4 w-4" />
+            View Rubric Mapping
+          </button>
+        </div>
       </div>
     </header>
   );
 }
 
-/* ---------------- HERO ---------------- */
-function Hero() {
-  return (
-    <section className="relative">
-      <div className="absolute inset-0 grid-bg opacity-60" />
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 0%, oklch(0.78 0.18 200 / 0.15), transparent 60%)" }} />
-      <div className="relative mx-auto max-w-7xl px-6 pt-24 pb-32 md:pt-32 md:pb-40">
-        <motion.div initial="hidden" animate="show" variants={fadeUp} className="mx-auto max-w-4xl text-center">
-          <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface/50 px-3.5 py-1.5 text-xs text-muted-foreground">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
-            </span>
-            AI-Assisted Change Request Review · powered by Claude Code runtime
-          </div>
-          <h1 className="font-display text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
-            Từ một link Confluence{" "}
-            <span className="text-gradient">đến quyết định rủi ro</span>
-            <br className="hidden md:block" /> có bằng chứng.
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            Mỗi Change Request được phân tích bởi một <span className="text-foreground">workspace AI riêng</span> trên AWS Fargate.
-            Code được index một lần, hàng loạt domain agents truy vấn song song, mọi tool call đều có audit trail.
-          </p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-            <a href="#journey" className="group inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-semibold text-primary-foreground" style={{ background: "var(--grad-cool)", boxShadow: "var(--shadow-glow)" }}>
-              Xem hệ thống vận hành <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-            </a>
-            <a href="#idea" className="rounded-md border border-border bg-surface/40 px-5 py-3 text-sm font-medium hover:border-primary/60">
-              Triết lý thiết kế
-            </a>
-          </div>
-        </motion.div>
-
-        {/* Hero schematic */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="relative mx-auto mt-20 max-w-5xl"
-        >
-          <div className="glass rounded-2xl p-1.5 shadow-soft" style={{ boxShadow: "var(--shadow-soft), var(--shadow-glow)" }}>
-            <div className="rounded-xl border border-border bg-background/60 p-8">
-              <HeroDiagram />
-            </div>
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
+function View({
+  activeView,
+  query,
+  setActiveView,
+}: {
+  activeView: ViewId;
+  query: string;
+  setActiveView: (view: ViewId) => void;
+}) {
+  switch (activeView) {
+    case "overview":
+      return <Overview setActiveView={setActiveView} />;
+    case "data-flow":
+      return <DataFlow />;
+    case "architecture":
+      return <Architecture />;
+    case "agents":
+      return <Agents query={query} />;
+    case "workspace":
+      return <CodeWorkspace />;
+    case "graph":
+      return <KnowledgeGraph />;
+    case "go-live":
+      return <GoLiveGate />;
+    case "learning":
+      return <IncidentLearning />;
+    case "rubric":
+      return <RubricScorecard query={query} />;
+    case "demo":
+      return <DemoScenario />;
+  }
 }
 
-function HeroDiagram() {
-  const nodes = [
-    { label: "Confluence CR", icon: FileText, color: "var(--cyan)" },
-    { label: "Resolve Intent", icon: Workflow, color: "var(--violet)" },
-    { label: "Code Workspace", icon: Server, color: "var(--lime)" },
-    { label: "Domain Agents", icon: Bot, color: "var(--amber)" },
-    { label: "Risk Decision", icon: ShieldCheck, color: "var(--rose)" },
-  ];
+function Overview({ setActiveView }: { setActiveView: (view: ViewId) => void }) {
   return (
-    <div className="flex flex-col items-center gap-6 md:flex-row md:justify-between md:gap-2">
-      {nodes.map((n, i) => (
-        <div key={n.label} className="flex flex-1 items-center gap-2 md:flex-col md:gap-3">
-          <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.5 + i * 0.12, type: "spring", stiffness: 200 }}
-            className="grid h-14 w-14 shrink-0 place-items-center rounded-xl border border-border bg-surface"
-            style={{ boxShadow: `inset 0 0 0 1px ${n.color}33, 0 8px 24px -8px ${n.color}55` }}
-          >
-            <n.icon className="h-6 w-6" style={{ color: n.color }} />
-          </motion.div>
-          <div className="text-xs font-medium text-muted-foreground md:text-center">{n.label}</div>
-          {i < nodes.length - 1 && (
-            <div className="hidden flex-1 md:block">
-              <svg className="w-full" height="2" viewBox="0 0 100 2" preserveAspectRatio="none">
-                <line x1="0" y1="1" x2="100" y2="1" stroke="var(--border)" strokeWidth="2" strokeDasharray="4 4" style={{ animation: "dash 1.2s linear infinite" }} />
-              </svg>
+    <div className="space-y-6">
+      <section className="relative overflow-hidden rounded-xl border border-border bg-surface/60 p-6 shadow-soft md:p-8">
+        <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-cyan/10 blur-3xl" />
+        <div className="relative grid gap-8 xl:grid-cols-[minmax(0,1.25fr)_430px]">
+          <div>
+            <div className="mono mb-4 inline-flex items-center gap-2 rounded-full border border-cyan/40 bg-cyan/10 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-cyan">
+              <Sparkles className="h-3.5 w-3.5" />
+              AI-Assisted Change Review & Go-Live Intelligence Platform
             </div>
-          )}
+            <h1 className="font-display text-5xl font-bold leading-tight tracking-tight md:text-7xl">
+              CR-Sentinel
+            </h1>
+            <p className="mt-5 max-w-3xl text-lg leading-relaxed text-muted-foreground">
+              AI-assisted CR review that detects hidden impact, missing verification, prod readiness
+              gaps, and continuously learns from incidents.
+            </p>
+            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-foreground/80">
+              From fragmented CR input to evidence-backed GO / NO-GO decisions, ecosystem impact
+              graph, and incident-driven skill learning.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => setActiveView("data-flow")}
+                className="inline-flex items-center gap-2 rounded-lg bg-cyan px-5 py-3 text-sm font-semibold text-background shadow-cyan"
+              >
+                Follow the Data Flow
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveView("rubric")}
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-background/55 px-5 py-3 text-sm font-semibold hover:border-purple hover:text-purple"
+              >
+                Open Rubric Scorecard
+              </button>
+            </div>
+          </div>
+          <RiskScoreCard />
         </div>
-      ))}
+      </section>
+
+      <section className="grid gap-3 md:grid-cols-5">
+        {valueCards.map((value, index) => (
+          <MetricCard key={value} label={value} value={`0${index + 1}`} tone={index} />
+        ))}
+      </section>
+
+      <SectionShell
+        eyebrow="60 second explanation"
+        title="One review cockpit for fragmented evidence, hidden dependencies, deterministic gates, and governed learning."
+      >
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {highLevelFlow.map((item, index) => (
+            <div key={item} className="flex shrink-0 items-center gap-2">
+              <div className="rounded-lg border border-border bg-surface/80 px-3 py-2">
+                <div className="mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground">
+                  {String(index + 1).padStart(2, "0")}
+                </div>
+                <div className="mt-1 text-xs font-semibold">{item}</div>
+              </div>
+              {index < highLevelFlow.length - 1 && <ChevronRight className="h-4 w-4 text-cyan" />}
+            </div>
+          ))}
+        </div>
+      </SectionShell>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Panel title="Why this matters" icon={AlertTriangle}>
+          {[
+            "CR descriptions are often incomplete",
+            "Impacted systems are often hidden",
+            "Non-prod success does not guarantee prod readiness",
+            "Historical CR/incident knowledge is usually not reused",
+            "CAB needs evidence, not just AI opinions",
+          ].map((item) => (
+            <Bullet key={item}>{item}</Bullet>
+          ))}
+        </Panel>
+        <Panel title="Core architecture decisions" icon={Split}>
+          {coreDecisions.map((item) => (
+            <Bullet key={item}>{item}</Bullet>
+          ))}
+        </Panel>
+      </div>
     </div>
   );
 }
 
-/* ---------------- PROBLEM ---------------- */
-function Problem() {
-  const pains = [
-    { icon: Search, title: "Reviewer bỏ sót impact ẩn", text: "Một MR có thể đụng vào event consumer, contract DB hay flag rollout mà không ai để ý." },
-    { icon: AlertTriangle, title: "AI nhận định chung chung", text: "Câu trả lời 'có vẻ ổn' không đủ. Cần bằng chứng từ chính dòng code, file, commit." },
-    { icon: Lock, title: "Clone & index lặp lại tốn kém", text: "Mỗi agent tự pull repo, tự build index. Latency cao, chi phí cao, không audit được." },
-  ];
+function DataFlow() {
   return (
-    <section id="problem" className="relative border-y border-border bg-surface/30 py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-6">
-        <motion.div initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} variants={fadeUp} className="max-w-3xl">
-          <div className="mono mb-4 text-xs uppercase tracking-[0.2em] text-primary">01 — Vấn đề</div>
-          <h2 className="text-4xl font-bold leading-tight md:text-5xl">
-            Review CR thủ công đang <span className="text-gradient">vỡ trận</span> vì quy mô và tốc độ release.
-          </h2>
-          <p className="mt-5 max-w-2xl text-muted-foreground">
-            Một CR có thể chứa nhiều GitLab MR, nhiều image tag, nhiều rủi ro chéo giữa các service. Con người không scale kịp,
-            còn AI generic thì thiếu bằng chứng để tin được.
-          </p>
-        </motion.div>
-
-        <div className="mt-14 grid gap-5 md:grid-cols-3">
-          {pains.map((p, i) => (
-            <motion.div
-              key={p.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.5 }}
-              className="group rounded-xl border border-border bg-surface p-6 transition hover:-translate-y-1 hover:border-primary/40"
-            >
-              <div className="mb-5 grid h-11 w-11 place-items-center rounded-lg bg-background text-primary">
-                <p.icon className="h-5 w-5" />
-              </div>
-              <h3 className="text-lg font-semibold">{p.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.text}</p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
+    <div className="space-y-6">
+      <PageIntro
+        eyebrow="Most important view"
+        title="Trace every signal from CR input to final gate, graph enrichment, and incident learning."
+        body="Click a step to highlight the relevant part of the flow. Click any node to open its purpose, inputs, outputs, key functions, rubric coverage, and example artifact."
+      />
+      <DataFlowReactFlow />
+    </div>
   );
 }
 
-/* ---------------- BIG IDEA ---------------- */
-function BigIdea() {
+function Architecture() {
+  const diagrams = [
+    {
+      id: "high-level",
+      label: "High-Level Architecture",
+      subtitle: "Six major capability columns plus end-to-end flow summary",
+      src: "/architecture/high-level-architecture.png",
+    },
+    {
+      id: "system",
+      label: "System Architecture",
+      subtitle: "Detailed AWS, LangGraph, code workspace, governance, and learning layers",
+      src: "/architecture/system-architecture.png",
+    },
+  ];
+  const [activeDiagram, setActiveDiagram] = useState(diagrams[0]);
+  const layers = [
+    [
+      "Experience Layer",
+      [
+        "CR-Sentinel Portal",
+        "Review Dashboard",
+        "Chat / Q&A",
+        "Rubric Scorecard",
+        "Ecosystem Graph UI",
+      ],
+      LayoutDashboard,
+    ],
+    [
+      "API & Orchestration Layer",
+      [
+        "API Gateway / Review API",
+        "Step Functions Review Workflow",
+        "EventBridge Scheduler",
+        "Human Approval Workflow",
+      ],
+      Workflow,
+    ],
+    [
+      "Domain Agent Layer",
+      [
+        "LangGraph Agent Harness",
+        "Agent Skill Loader",
+        "Agent Reasoning Runtime",
+        "Tool Gateway",
+        "Evidence Validator",
+      ],
+      Bot,
+    ],
+    [
+      "Code Analysis Layer",
+      [
+        "ECS Fargate Code Workspace",
+        "Claude Agent SDK",
+        "CodeGraph",
+        "Read-only MCP tools",
+        "Workspace API",
+      ],
+      FileCode2,
+    ],
+    [
+      "Knowledge Layer",
+      [
+        "Neo4j Knowledge Graph",
+        "Historical CR Case Store",
+        "Incident/PIR Knowledge",
+        "Risk Pattern Library",
+        "Skill Registry",
+      ],
+      Database,
+    ],
+    [
+      "Decision & Governance Layer",
+      [
+        "Evaluation Aggregator",
+        "Deterministic Risk Scoring Engine",
+        "Graph Commit Workflow",
+        "Pre-Go-Live Gate",
+        "Audit / Observability",
+      ],
+      ShieldCheck,
+    ],
+  ] as const;
+
   return (
-    <section id="idea" className="relative py-28 md:py-36">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="grid items-center gap-14 md:grid-cols-2">
-          <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp}>
-            <div className="mono mb-4 text-xs uppercase tracking-[0.2em] text-primary">02 — Ý tưởng cốt lõi</div>
-            <h2 className="text-4xl font-bold leading-tight md:text-5xl">
-              Một dòng nguyên tắc <br />
-              <span className="text-gradient">thay đổi toàn bộ kiến trúc.</span>
+    <div className="space-y-6">
+      <PageIntro
+        eyebrow="Architecture"
+        title="Clear responsibility boundaries: agents reason, tools provide evidence, rules decide gates, humans approve."
+        body="The platform separates review orchestration, agent reasoning, code investigation, knowledge graph mutation, and governance decisions."
+      />
+
+      <section className="overflow-hidden rounded-xl border border-border bg-surface/65 shadow-soft">
+        <div className="flex flex-col gap-4 border-b border-border bg-background/45 p-4 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <div className="mono text-[10px] uppercase tracking-[0.22em] text-cyan">
+              architecture design
+            </div>
+            <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+              {activeDiagram.label}
             </h2>
-            <p className="mt-6 text-muted-foreground">
-              Thay vì để mỗi agent tự clone repo và tự build index, hệ thống dựng
-              <span className="text-foreground"> một workspace AI sống lâu </span>
-              cho từng CR. Code được checkout đúng SHA, CodeGraph index build một lần,
-              Claude Code runtime sẵn sàng. Các agent chỉ <span className="text-foreground">hỏi</span> qua một gateway.
-            </p>
-            <ul className="mt-8 space-y-3">
-              {[
-                "Reuse code knowledge giữa nhiều agents",
-                "Audit trail từng tool call vào S3",
-                "Read-only boundary — không có quyền merge / deploy",
-                "Cleanup tự động khi workflow kết thúc",
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-3 text-sm">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  <span className="text-foreground/90">{t}</span>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+            <p className="mt-1 text-sm text-muted-foreground">{activeDiagram.subtitle}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {diagrams.map((diagram) => (
+              <button
+                key={diagram.id}
+                type="button"
+                onClick={() => setActiveDiagram(diagram)}
+                className="rounded-lg border px-3 py-2 text-sm font-semibold transition"
+                style={{
+                  borderColor: activeDiagram.id === diagram.id ? "var(--cyan)" : "var(--border)",
+                  background:
+                    activeDiagram.id === diagram.id
+                      ? "oklch(0.78 0.16 205 / 0.12)"
+                      : "var(--surface)",
+                  color:
+                    activeDiagram.id === diagram.id
+                      ? "var(--foreground)"
+                      : "var(--muted-foreground)",
+                }}
+              >
+                {diagram.label}
+              </button>
+            ))}
+            <a
+              href={activeDiagram.src}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm font-semibold text-muted-foreground transition hover:border-purple hover:text-purple"
+            >
+              Open full size
+            </a>
+          </div>
+        </div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="relative"
-          >
-            <div className="glass relative overflow-hidden rounded-2xl p-8" style={{ boxShadow: "var(--shadow-soft)" }}>
-              <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full" style={{ background: "var(--grad-cool)", filter: "blur(60px)", opacity: 0.3 }} />
-              <div className="mono text-xs text-muted-foreground">// principle.txt</div>
-              <div className="mt-4 font-display text-3xl font-semibold leading-tight md:text-4xl">
-                <span className="text-primary">1 CR</span>
-                <span className="text-muted-foreground"> = </span>
-                <span className="text-accent">1 Long-running</span><br />
-                <span>Code Workspace Session</span><br />
-                <span className="text-muted-foreground">on </span><span className="text-foreground">AWS Fargate</span>
+        <div className="bg-background/30 p-3">
+          <div className="overflow-x-auto rounded-lg border border-cyan/25 bg-background/80">
+            <img
+              src={activeDiagram.src}
+              alt={`CR-Sentinel ${activeDiagram.label}`}
+              className="h-auto min-w-[980px] max-w-none rounded-lg xl:min-w-0 xl:w-full"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-3">
+        {layers.map(([title, items, Icon], index) => (
+          <div key={title} className="rounded-xl border border-border bg-surface/70 p-5">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-lg border border-cyan/30 bg-cyan/10 text-cyan">
+                <Icon className="h-5 w-5" />
               </div>
-
-              <div className="mt-8 grid grid-cols-2 gap-3 text-xs">
-                {[
-                  { k: "Checkout", v: "exact SHA" },
-                  { k: "Index", v: "CodeGraph MCP" },
-                  { k: "Runtime", v: "Claude Code SDK" },
-                  { k: "Boundary", v: "Read-only" },
-                ].map((x) => (
-                  <div key={x.k} className="rounded-lg border border-border bg-background/40 p-3">
-                    <div className="mono text-[10px] uppercase tracking-wider text-muted-foreground">{x.k}</div>
-                    <div className="mt-1 font-medium">{x.v}</div>
-                  </div>
-                ))}
+              <div>
+                <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  layer {index + 1}
+                </div>
+                <h3 className="font-display text-lg font-semibold">{title}</h3>
               </div>
             </div>
-          </motion.div>
+            <div className="mt-4 space-y-2">
+              {items.map((item) => (
+                <Bullet key={item}>{item}</Bullet>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <SectionShell
+        eyebrow="Primary flows"
+        title="Portal to decision, graph commit, and incident learning"
+      >
+        <div className="grid gap-3 md:grid-cols-3">
+          <FlowStrip
+            items={[
+              "Portal",
+              "Review API",
+              "Step Functions",
+              "Domain Agents",
+              "Risk Engine",
+              "Portal",
+            ]}
+            color="var(--cyan)"
+          />
+          <FlowStrip
+            items={["Dependency Agent", "Graph Candidate Store", "Graph Commit", "Neo4j"]}
+            color="var(--green)"
+          />
+          <FlowStrip
+            items={["Incident Learning", "Skill Registry", "Agent Harness"]}
+            color="var(--purple)"
+          />
         </div>
-      </div>
-    </section>
+      </SectionShell>
+
+      <Panel title="Responsibility boundary" icon={Lock}>
+        {[
+          "Agents reason and recommend",
+          "Tools provide evidence",
+          "Risk Engine decides gates",
+          "Humans approve CAB decisions",
+          "Graph Commit Workflow writes shared knowledge",
+          "Code Workspace never changes code",
+        ].map((item) => (
+          <Bullet key={item}>{item}</Bullet>
+        ))}
+      </Panel>
+    </div>
   );
 }
 
-/* ---------------- JOURNEY ---------------- */
-function Journey() {
-  const steps = [
-    {
-      n: "01", title: "Submit CR", icon: FileText, color: "var(--cyan)",
-      desc: "Người dùng paste một link Confluence CR. Step Functions kích hoạt workflow review.",
-      tags: ["Confluence", "Jira", "GitLab", "Step Functions"],
-    },
-    {
-      n: "02", title: "Resolve Intent", icon: Workflow, color: "var(--violet)",
-      desc: "CR Intent Agent phân tích document, resolve danh sách MR, image tag, commit SHA, repo liên quan và sinh ra Review Manifest.",
-      tags: ["MCP", "review_manifest.json", "MR list", "Image tags"],
-    },
-    {
-      n: "03", title: "Start Workspace", icon: Server, color: "var(--lime)",
-      desc: "Một Fargate task khởi tạo: pull repos, checkout SHA, generate diff, build CodeGraph index, khởi động Claude Code runtime — đến khi READY.",
-      tags: ["Fargate", "CodeGraph", "MCP Gateway", "READY"],
-    },
-    {
-      n: "04", title: "Analyze in Parallel", icon: Network, color: "var(--amber)",
-      desc: "Code Tool Gateway (Lambda) forward mọi truy vấn của agent tới workspace. Mọi request/response được lưu vào S3 để audit.",
-      tags: ["Lambda", "Audit S3", "Tool routing"],
-    },
-    {
-      n: "05", title: "Domain Agents", icon: Bot, color: "var(--rose)",
-      desc: "Bảy domain agents chạy song song: Hidden Impact, Verification Gap, Security, Kafka, Non-prod vs Prod, Rollout, Historical Incident.",
-      tags: ["7 Agents", "Parallel", "Evidence-based"],
-    },
-    {
-      n: "06", title: "Decide & Publish", icon: ShieldCheck, color: "var(--cyan)",
-      desc: "Risk Decision Engine tổng hợp findings, publish final report có bằng chứng, gửi thông báo và stop workspace.",
-      tags: ["Risk score", "Report", "Slack / Email", "Cleanup"],
-    },
+function Agents({ query }: { query: string }) {
+  const filteredAgents = agents.filter((agent) =>
+    `${agent.name} ${agent.functions.join(" ")}`.toLowerCase().includes(query.toLowerCase()),
+  );
+
+  return (
+    <div className="space-y-6">
+      <PageIntro
+        eyebrow="LangGraph Domain Agents"
+        title="Reasoning specialists with skill loading, schema validation, and evidence-first outputs."
+        body="Every agent can reason, every finding must cite evidence, and agents cannot directly decide GO/NO-GO, write Neo4j, or access source code without the controlled tool gateway."
+      />
+
+      <SectionShell eyebrow="Mini flow" title="How each domain agent works">
+        <FlowStrip
+          color="var(--purple)"
+          items={[
+            "Load CR Context",
+            "Load Active Skills",
+            "Retrieve Historical Cases",
+            "Query Neo4j",
+            "Call Code Workspace if needed",
+            "Reason Over Evidence",
+            "Produce Findings",
+            "Validate Schema",
+            "Store Audit",
+          ]}
+        />
+      </SectionShell>
+
+      <section className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+        {filteredAgents.map((agent, index) => (
+          <div key={agent.name} className="rounded-xl border border-border bg-surface/70 p-5">
+            <div className="flex items-start gap-3">
+              <div className="grid h-10 w-10 place-items-center rounded-lg border border-purple/40 bg-purple/10 text-purple">
+                <Bot className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  agent {String(index + 1).padStart(2, "0")}
+                </div>
+                <h3 className="font-display text-lg font-semibold">{agent.name}</h3>
+              </div>
+            </div>
+            <div className="mt-4 space-y-2">
+              {agent.functions.map((item) => (
+                <Bullet key={item}>{item}</Bullet>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <Panel title="Reasoning policy" icon={ShieldCheck}>
+        {[
+          "Every agent can reason",
+          "Every finding must cite evidence",
+          "Every output must match JSON schema",
+          "Agents cannot directly decide GO/NO-GO",
+          "Agents cannot directly write Neo4j shared graph",
+          "Agents cannot directly access GitLab or source code",
+        ].map((item) => (
+          <Bullet key={item}>{item}</Bullet>
+        ))}
+      </Panel>
+    </div>
+  );
+}
+
+function CodeWorkspace() {
+  return (
+    <div className="space-y-6">
+      <PageIntro
+        eyebrow="Claude Agent SDK Code Workspace"
+        title="A narrow read-only source-code investigation backend, not a general coding agent."
+        body="Claude Agent SDK is used only inside an isolated ECS Fargate workspace. Domain agents ask for structured code evidence through the Code Tool Gateway."
+      />
+
+      <SectionShell eyebrow="Architecture" title="Domain Agent to structured code evidence">
+        <FlowStrip
+          color="var(--blue)"
+          items={[
+            "Domain Agent",
+            "Code Tool Gateway",
+            "Workspace API",
+            "Claude Agent SDK",
+            "CodeGraph / Repo Snapshot",
+            "Structured Code Evidence",
+          ]}
+        />
+      </SectionShell>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_420px]">
+        <Panel title="Workspace properties" icon={Server}>
+          {[
+            "ECS Fargate per review",
+            "Read-only GitLab token",
+            "Checkout exact SHA/tag",
+            "Build diff summary and CodeGraph",
+            "Run Claude Agent SDK query() per analysis request",
+            "Use read-only tools only",
+            "Return JSON schema output",
+            "No code modification, git push, deploy permission, or production secret value access",
+          ].map((item) => (
+            <Bullet key={item}>{item}</Bullet>
+          ))}
+        </Panel>
+        <div className="rounded-xl border border-blue/35 bg-blue/10 p-5">
+          <div className="flex items-center gap-3">
+            <Cpu className="h-5 w-5 text-blue" />
+            <h3 className="font-display text-lg font-semibold">Why Claude Agent SDK here?</h3>
+          </div>
+          <div className="mt-4 space-y-2">
+            {[
+              "Strong source-code reasoning",
+              "Structured output",
+              "MCP/custom tools",
+              "Hooks and permission controls",
+              "Good fit for narrow read-only code investigation",
+            ].map((item) => (
+              <Bullet key={item}>{item}</Bullet>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-xl border border-border bg-surface/70">
+        <table className="w-full min-w-[760px] text-left text-sm">
+          <thead className="bg-background/50 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            <tr>
+              <th className="px-4 py-3">Endpoint</th>
+              <th className="px-4 py-3">Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            {workspaceEndpoints.map(([endpoint, purpose]) => (
+              <tr key={endpoint} className="border-t border-border">
+                <td className="mono px-4 py-3 text-blue">{endpoint}</td>
+                <td className="px-4 py-3 text-foreground/85">{purpose}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <ArtifactCard
+          title="Sample request"
+          content={`{
+  "analysis_type": "event_dependency",
+  "question": "Find Kafka topics produced or consumed by changed code",
+  "changed_files_only": true
+}`}
+        />
+        <ArtifactCard
+          title="Sample response"
+          content={`{
+  "status": "ok",
+  "summary": "payment-service publishes payment.authorized event consumed by ledger-service",
+  "evidence": ["src/payments/Publisher.ts:84", "neo4j://topic/payment.authorized"]
+}`}
+        />
+      </div>
+    </div>
+  );
+}
+
+function KnowledgeGraph() {
+  return (
+    <div className="space-y-6">
+      <PageIntro
+        eyebrow="Neo4j Enterprise Ecosystem Knowledge Graph"
+        title="Shared enterprise memory for services, topics, CRs, incidents, and risk patterns."
+        body="Graph updates are not committed immediately after review. Candidate edges wait for pre-go-live validation, CR DONE status, and human governance."
+      />
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_420px]">
+        <KnowledgeGraphFlow />
+
+        <Panel title="Graph lifecycle" icon={Database}>
+          {graphLifecycle.map((item, index) => (
+            <div key={item} className="flex gap-3">
+              <span className="mono grid h-6 w-6 shrink-0 place-items-center rounded-full bg-green text-[10px] font-bold text-background">
+                {index + 1}
+              </span>
+              <span className="text-sm leading-relaxed text-foreground/85">{item}</span>
+            </div>
+          ))}
+        </Panel>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <InfoTile label="Declared impact" value="payment-service" color="var(--magenta)" />
+        <InfoTile
+          label="Discovered impact"
+          value="ledger-service, notification-service, fraud-monitoring"
+          color="var(--orange)"
+        />
+        <InfoTile
+          label="New candidate edge"
+          value="fraud-monitoring consumes payment.authorized"
+          color="var(--cyan)"
+        />
+      </div>
+    </div>
+  );
+}
+
+function GoLiveGate() {
+  const states = [
+    "READY_FOR_GOLIVE",
+    "GO_WITH_WARNINGS",
+    "NEEDS_RESCAN",
+    "NO_GO_PENDING_RESCAN",
+    "HOLD_INSUFFICIENT_INFORMATION",
   ];
 
   return (
-    <section id="journey" className="relative border-t border-border py-28 md:py-36">
-      <div className="mx-auto max-w-7xl px-6">
-        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="max-w-3xl">
-          <div className="mono mb-4 text-xs uppercase tracking-[0.2em] text-primary">03 — Hành trình của một CR</div>
-          <h2 className="text-4xl font-bold leading-tight md:text-5xl">
-            Sáu chặng. <span className="text-gradient">Từ link đến quyết định.</span>
-          </h2>
-        </motion.div>
+    <div className="space-y-6">
+      <PageIntro
+        eyebrow="Pre-Go-Live Validation: T-1h Safety Gate"
+        title="A review passed on Wednesday is not automatically safe for a Saturday release."
+        body="CR-Sentinel schedules validation one hour before go-live to detect moved tags, changed image digests, expanded release scope, and production readiness gaps."
+      />
 
-        <div className="relative mt-16">
-          <div className="absolute left-[27px] top-2 bottom-2 w-px bg-gradient-to-b from-primary/60 via-accent/40 to-transparent md:left-1/2 md:-translate-x-1/2" />
+      <SectionShell eyebrow="Timeline" title="Wednesday passed, Saturday blocked">
+        <FlowStrip
+          color="var(--orange)"
+          items={[
+            "Wednesday Review Passed",
+            "Friday GitLab Tag Updated",
+            "Saturday T-1h Validation",
+            "Drift Detected",
+            "NO_GO_PENDING_RESCAN",
+          ]}
+        />
+      </SectionShell>
 
-          <ol className="space-y-12 md:space-y-16">
-            {steps.map((s, i) => {
-              const right = i % 2 === 1;
-              const Icon = s.icon;
-              return (
-                <motion.li
-                  key={s.n}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.6 }}
-                  className="relative md:grid md:grid-cols-2 md:gap-16"
-                >
-                  <div
-                    className="absolute left-0 top-1 z-10 grid h-14 w-14 place-items-center rounded-xl border border-border bg-surface md:left-1/2 md:-translate-x-1/2"
-                    style={{ boxShadow: `0 0 0 4px var(--background), 0 0 24px -4px ${s.color}99` }}
-                  >
-                    <Icon className="h-6 w-6" style={{ color: s.color }} />
-                  </div>
-                  <div className={`pl-20 md:pl-0 ${right ? "md:col-start-2 md:pl-12" : "md:pr-12"}`}>
-                    <StepCard step={s} />
-                  </div>
-                </motion.li>
-              );
-            })}
-          </ol>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <Panel title="Checks performed" icon={ClipboardCheck}>
+          {goLiveChecks.map((item) => (
+            <Bullet key={item}>{item}</Bullet>
+          ))}
+        </Panel>
+        <div className="rounded-xl border border-magenta/40 bg-magenta/10 p-5">
+          <div className="mono text-[10px] uppercase tracking-[0.2em] text-magenta">
+            sample failed validation
+          </div>
+          <p className="mt-3 text-lg font-semibold leading-relaxed">
+            GitLab tag payment-service-v1.2.3 moved from abc123 to xyz789 after review.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">Re-scan required before go-live.</p>
+          <DecisionBadge label="NO_GO_PENDING_RESCAN" tone="danger" />
         </div>
       </div>
+
+      <section className="grid gap-3 md:grid-cols-5">
+        {states.map((state, index) => (
+          <InfoTile
+            key={state}
+            label={`state ${index + 1}`}
+            value={state}
+            color={index < 2 ? "var(--green)" : index === 2 ? "var(--orange)" : "var(--magenta)"}
+          />
+        ))}
+      </section>
+    </div>
+  );
+}
+
+function IncidentLearning() {
+  const lifecycle = ["CANDIDATE", "EVALUATING", "SHADOW", "APPROVED", "ACTIVE", "RETIRED"];
+
+  return (
+    <div className="space-y-6">
+      <PageIntro
+        eyebrow="Incident-to-Skill Learning Loop"
+        title="CR-Sentinel learns safely; it does not self-mutate production agents."
+        body="Incidents become candidate skills only after missed-risk analysis, historical evaluation, and human approval."
+      />
+
+      <SectionShell eyebrow="Governed loop" title="Incident/PIR to future agent behavior">
+        <FlowStrip
+          color="var(--purple)"
+          items={[
+            "Incident/PIR",
+            "Map to CR",
+            "Missed Risk Analysis",
+            "Risk Pattern Candidate",
+            "Skill Proposal",
+            "Historical Evaluation",
+            "Human Approval",
+            "Active Skill Version",
+            "Future Agent Runs",
+          ]}
+        />
+      </SectionShell>
+
+      <div className="grid gap-4 lg:grid-cols-6">
+        {lifecycle.map((state, index) => (
+          <div key={state} className="rounded-xl border border-border bg-surface/70 p-4">
+            <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              stage {index + 1}
+            </div>
+            <div className="mt-2 font-semibold text-purple">{state}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Panel title="Example skill" icon={Sparkles}>
+          <InfoTile
+            label="Name"
+            value="Downstream Feature Flag Readiness Check"
+            color="var(--purple)"
+          />
+          <InfoTile label="Created from" value="INC-2026-009" color="var(--magenta)" />
+          <InfoTile
+            label="Target agent"
+            value="Rollout / Rollback & Environment Readiness Agent"
+            color="var(--orange)"
+          />
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+            If a CR impacts a downstream system and UAT evidence mentions a feature flag, verify
+            that the same flag exists and is correctly set in production for both source and
+            downstream systems.
+          </p>
+        </Panel>
+        <Panel title="Governance note" icon={UserCheck}>
+          {[
+            "No skill goes live without evaluation",
+            "No skill goes live without human approval",
+            "Every review records agent version and skill version",
+            "Skills can be rolled back",
+          ].map((item) => (
+            <Bullet key={item}>{item}</Bullet>
+          ))}
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+function RubricScorecard({ query }: { query: string }) {
+  const filteredRows = rubricRows.filter((row) =>
+    row.join(" ").toLowerCase().includes(query.toLowerCase()),
+  );
+  const radarData = scoringCriteria.map(([criterion, weight]) => ({
+    criterion: criterion.replace(" ", "\n"),
+    score: weight,
+    fullMark: 25,
+  }));
+  const barData = scoringCriteria.map(([criterion, weight]) => ({
+    name: criterion.split(" ")[0],
+    weight,
+  }));
+
+  return (
+    <div className="space-y-6">
+      <PageIntro
+        eyebrow="Hackathon rubric mapping"
+        title="Every requirement maps to a concrete CR-Sentinel function, component, and demo artifact."
+        body="The scorecard is built for judges: requirement, implementation function, components involved, evidence in demo, and coverage level."
+      />
+
+      <section className="grid gap-4 md:grid-cols-3">
+        <InfoTile label="Requirement Coverage" value="10/10 strong" color="var(--green)" />
+        <InfoTile label="Solution Completeness" value="High" color="var(--cyan)" />
+        <InfoTile
+          label="Innovation / Feasibility"
+          value="High with scoped MVP"
+          color="var(--purple)"
+        />
+      </section>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <div className="overflow-hidden rounded-xl border border-border bg-surface/70">
+          <table className="w-full min-w-[1120px] text-left text-sm">
+            <thead className="bg-background/55 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+              <tr>
+                {[
+                  "ID",
+                  "Requirement",
+                  "CR-Sentinel Function",
+                  "Components Involved",
+                  "Evidence in Demo",
+                  "Coverage",
+                ].map((head) => (
+                  <th key={head} className="px-4 py-3">
+                    {head}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRows.map((row) => (
+                <tr key={row[0]} className="border-t border-border align-top">
+                  {row.map((cell, index) => (
+                    <td
+                      key={`${row[0]}-${index}`}
+                      className={
+                        index === 0 ? "mono px-4 py-3 text-cyan" : "px-4 py-3 text-foreground/85"
+                      }
+                    >
+                      {index === 5 ? <CoverageBadge label={cell} /> : cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="space-y-4">
+          <ChartPanel title="Scoring Weight">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={barData}>
+                <CartesianGrid stroke="var(--border)" vertical={false} />
+                <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={11} />
+                <YAxis stroke="var(--muted-foreground)" fontSize={11} />
+                <Tooltip
+                  contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)" }}
+                />
+                <Bar dataKey="weight" fill="var(--cyan)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+          <ChartPanel title="Coverage Shape">
+            <ResponsiveContainer width="100%" height={260}>
+              <RadarChart data={radarData}>
+                <PolarGrid stroke="var(--border)" />
+                <PolarAngleAxis
+                  dataKey="criterion"
+                  stroke="var(--muted-foreground)"
+                  fontSize={10}
+                />
+                <PolarRadiusAxis stroke="var(--border)" fontSize={9} />
+                <RadarShape
+                  dataKey="score"
+                  stroke="var(--purple)"
+                  fill="var(--purple)"
+                  fillOpacity={0.28}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+        </div>
+      </div>
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        {scoringCriteria.map(([criterion, weight, points]) => (
+          <div key={criterion} className="rounded-xl border border-border bg-surface/70 p-5">
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="font-display text-lg font-semibold">{criterion}</h3>
+              <span className="rounded-full border border-cyan/35 bg-cyan/10 px-3 py-1 text-xs font-semibold text-cyan">
+                {weight}%
+              </span>
+            </div>
+            <div className="mt-4 space-y-2">
+              {points.map((point) => (
+                <Bullet key={point}>{point}</Bullet>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
+function DemoScenario() {
+  const [activeStep, setActiveStep] = useState(0);
+  const step = demoSteps[activeStep];
+
+  return (
+    <div className="space-y-6">
+      <PageIntro
+        eyebrow="Interactive demo story"
+        title="CR-2026-001: Payment Authorization Change"
+        body="Declared impact is payment-service only. CR-Sentinel discovers ledger-service, notification-service, and fraud-monitoring, then blocks go-live when a tag drifts."
+      />
+
+      <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <div className="rounded-xl border border-border bg-surface/70 p-4">
+          <div className="mono mb-4 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            animated progress
+          </div>
+          <div className="space-y-2">
+            {demoSteps.map(([title], index) => (
+              <button
+                key={title}
+                type="button"
+                onClick={() => setActiveStep(index)}
+                className="flex w-full items-center gap-3 rounded-lg border p-3 text-left transition"
+                style={{
+                  borderColor: index === activeStep ? "var(--cyan)" : "var(--border)",
+                  background: index === activeStep ? "oklch(0.78 0.16 205 / 0.12)" : "transparent",
+                }}
+              >
+                <span className="mono grid h-7 w-7 shrink-0 place-items-center rounded-full bg-background text-[10px]">
+                  {index + 1}
+                </span>
+                <span className="text-xs font-semibold">{title}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="rounded-xl border border-border bg-surface/70 p-6">
+            <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              step {activeStep + 1}
+            </div>
+            <h2 className="mt-2 font-display text-3xl font-bold">{step[0]}</h2>
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <InfoTile label="Input" value={step[1]} color="var(--cyan)" />
+              <InfoTile label="Processing / Output" value={step[2]} color="var(--purple)" />
+              <InfoTile label="Evidence" value={step[3]} color="var(--orange)" />
+              <InfoTile label="Rubric covered" value={step[4]} color="var(--green)" />
+            </div>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {[
+                "Show data artifacts",
+                "Show impacted systems graph",
+                "Show risk reasoning",
+                "Show rubric coverage for this step",
+              ].map((label) => (
+                <button
+                  key={label}
+                  type="button"
+                  className="rounded-lg border border-border bg-background/55 px-3 py-2 text-xs font-semibold hover:border-cyan hover:text-cyan"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <DecisionBadge label="Initial: NO_GO" tone="danger" />
+            <DecisionBadge label="After fix: GO_WITH_WARNINGS" tone="warn" />
+            <DecisionBadge label="T-1h: NO_GO_PENDING_RESCAN" tone="danger" />
+          </div>
+
+          <section className="grid gap-4 lg:grid-cols-2">
+            {findings.map((finding) => (
+              <FindingCard key={finding.category} finding={finding} />
+            ))}
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PageIntro({ eyebrow, title, body }: { eyebrow: string; title: string; body: string }) {
+  return (
+    <section className="rounded-xl border border-border bg-surface/60 p-6 shadow-soft">
+      <div className="mono text-[10px] uppercase tracking-[0.24em] text-cyan">{eyebrow}</div>
+      <h1 className="mt-3 max-w-5xl font-display text-3xl font-bold leading-tight tracking-tight md:text-5xl">
+        {title}
+      </h1>
+      <p className="mt-4 max-w-4xl text-sm leading-relaxed text-muted-foreground md:text-base">
+        {body}
+      </p>
     </section>
   );
 }
 
-function StepCard({ step }: { step: { n: string; title: string; desc: string; tags: string[]; color: string } }) {
+function SectionShell({
+  eyebrow,
+  title,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  children: ReactNode;
+}) {
   return (
-    <div className="glass rounded-2xl border border-border p-7 text-left transition hover:border-primary/40" style={{ boxShadow: "var(--shadow-soft)" }}>
-      <div className="flex items-center gap-3">
-        <span className="mono text-xs tracking-widest text-muted-foreground">STEP {step.n}</span>
-        <span className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${step.color}88, transparent)` }} />
+    <section className="rounded-xl border border-border bg-surface/60 p-5">
+      <div className="mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+        {eyebrow}
       </div>
-      <h3 className="mt-3 text-2xl font-semibold">{step.title}</h3>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{step.desc}</p>
-      <div className="mt-5 flex flex-wrap gap-1.5">
-        {step.tags.map((t) => (
-          <span key={t} className="mono rounded-md border border-border bg-background/60 px-2 py-1 text-[10.5px] text-foreground/80">
-            {t}
-          </span>
+      <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">{title}</h2>
+      <div className="mt-5">{children}</div>
+    </section>
+  );
+}
+
+function Panel({
+  title,
+  icon: Icon,
+  children,
+}: {
+  title: string;
+  icon: ComponentType<{ className?: string }>;
+  children: ReactNode;
+}) {
+  return (
+    <section className="rounded-xl border border-border bg-surface/65 p-5">
+      <div className="flex items-center gap-3">
+        <div className="grid h-10 w-10 place-items-center rounded-lg border border-cyan/30 bg-cyan/10 text-cyan">
+          <Icon className="h-5 w-5" />
+        </div>
+        <h3 className="font-display text-lg font-semibold">{title}</h3>
+      </div>
+      <div className="mt-4 space-y-2">{children}</div>
+    </section>
+  );
+}
+
+function MetricCard({ label, value, tone }: { label: string; value: string; tone: number }) {
+  const colors = ["var(--cyan)", "var(--blue)", "var(--purple)", "var(--magenta)", "var(--green)"];
+  const color = colors[tone % colors.length];
+  return (
+    <div className="rounded-xl border border-border bg-surface/70 p-4">
+      <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        {value}
+      </div>
+      <div
+        className="mt-3 h-1 w-10 rounded-full"
+        style={{ background: color, boxShadow: `0 0 14px ${color}` }}
+      />
+      <div className="mt-4 text-sm font-semibold leading-snug">{label}</div>
+    </div>
+  );
+}
+
+function RiskScoreCard() {
+  return (
+    <div className="rounded-xl border border-cyan/30 bg-background/70 p-5 shadow-cyan">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            current demo decision
+          </div>
+          <div className="mt-2 font-display text-3xl font-bold text-magenta">NO_GO</div>
+        </div>
+        <Gauge className="h-10 w-10 text-magenta" />
+      </div>
+      <div className="mt-6 grid grid-cols-3 gap-3">
+        <InfoTile label="Risk score" value="91/100" color="var(--magenta)" />
+        <InfoTile label="Evidence" value="27 citations" color="var(--cyan)" />
+        <InfoTile label="Coverage" value="10/10" color="var(--green)" />
+      </div>
+      <div className="mt-5 space-y-2">
+        {findings.slice(0, 3).map((finding) => (
+          <FindingCard key={finding.category} finding={finding} compact />
         ))}
       </div>
     </div>
   );
 }
 
-/* ---------------- ARCHITECTURE ---------------- */
-function Architecture() {
+function FindingCard({
+  finding,
+  compact = false,
+}: {
+  finding: { severity: string; category: string; text: string };
+  compact?: boolean;
+}) {
+  const color =
+    finding.severity === "CRITICAL"
+      ? "var(--magenta)"
+      : finding.severity === "HIGH"
+        ? "var(--orange)"
+        : finding.severity === "MEDIUM"
+          ? "var(--purple)"
+          : "var(--cyan)";
   return (
-    <section id="architecture" className="relative border-t border-border py-28 md:py-36">
-      <div className="absolute inset-0 grid-bg opacity-15" />
-      <div className="relative mx-auto max-w-7xl px-6">
-        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="max-w-3xl">
-          <div className="mono mb-4 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-primary">
-            <Network className="h-3.5 w-3.5" /> 04 — Kiến trúc hệ thống
-          </div>
-          <h2 className="text-4xl font-bold leading-tight md:text-5xl">
-            Toàn bộ hệ thống trong <span className="text-gradient">một sơ đồ tương tác</span>.
-          </h2>
-          <p className="mt-5 max-w-2xl text-muted-foreground">
-            Năm tầng — từ người dùng &amp; nguồn input, qua API, orchestration với hai nhánh
-            <span className="text-foreground"> DOCUMENT_ONLY</span> và
-            <span className="text-foreground"> CODE_AWARE</span>, đến tầng đánh giá &amp; quyết định.
-            Kéo, zoom, pan để khám phá từng node.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7 }}
-          className="mt-12"
+    <div className="rounded-lg border bg-background/45 p-3" style={{ borderColor: `${color}66` }}>
+      <div className="flex items-center gap-2">
+        <span
+          className="mono rounded px-2 py-0.5 text-[10px] font-bold"
+          style={{ background: `${color}20`, color }}
         >
-          <ArchitectureFlow />
-        </motion.div>
+          {finding.severity}
+        </span>
+        <span className="text-sm font-semibold">{finding.category}</span>
       </div>
-    </section>
+      {!compact && (
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{finding.text}</p>
+      )}
+      {compact && <p className="mt-1 truncate text-xs text-muted-foreground">{finding.text}</p>}
+    </div>
   );
 }
 
-/* ---------------- SIMULATION ---------------- */
-function Simulation() {
+function Bullet({ children }: { children: ReactNode }) {
   return (
-    <section id="simulation" className="relative border-t border-border py-28 md:py-36">
-      <div className="absolute inset-0 grid-bg opacity-20" />
-      <div className="relative mx-auto max-w-7xl px-6">
-        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="max-w-3xl">
-          <div className="mono mb-4 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-primary">
-            <Cpu className="h-3.5 w-3.5" /> 04 — Mô phỏng luồng data
+    <div className="flex gap-2 text-sm leading-relaxed text-foreground/85">
+      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green" />
+      <span>{children}</span>
+    </div>
+  );
+}
+
+function FlowStrip({ items, color }: { items: string[]; color: string }) {
+  return (
+    <div className="flex gap-2 overflow-x-auto pb-2">
+      {items.map((item, index) => (
+        <div key={`${item}-${index}`} className="flex shrink-0 items-center gap-2">
+          <div
+            className="rounded-lg border bg-background/55 px-3 py-2"
+            style={{ borderColor: `${color}66` }}
+          >
+            <div className="text-xs font-semibold">{item}</div>
           </div>
-          <h2 className="text-4xl font-bold leading-tight md:text-5xl">
-            Xem từng <span className="text-gradient">packet</span> di chuyển qua hệ thống — theo thời gian thực.
-          </h2>
-          <p className="mt-5 max-w-2xl text-muted-foreground">
-            Bấm play để theo dõi một CR thật sự được orchestrate: từ Confluence link, qua Step Functions, dựng workspace trên Fargate,
-            phát fan-out cho 7 domain agents, và mọi tool call đều được audit vào S3 với evidence rõ ràng.
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7 }}
-          className="mt-12"
-        >
-          <DataFlowSimulator />
-        </motion.div>
-
-        <div className="mono mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] text-muted-foreground">
-          <LegendDot color="var(--cyan)" label="ingress / state" />
-          <LegendDot color="var(--violet)" label="orchestration" />
-          <LegendDot color="var(--lime)" label="workspace" />
-          <LegendDot color="var(--primary)" label="gateway" />
-          <LegendDot color="var(--amber)" label="agent query" />
-          <LegendDot color="var(--rose)" label="decision" />
+          {index < items.length - 1 && <ArrowRight className="h-4 w-4" style={{ color }} />}
         </div>
-      </div>
-    </section>
+      ))}
+    </div>
   );
 }
 
-function LegendDot({ color, label }: { color: string; label: string }) {
+function InfoTile({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5">
-      <span className="h-2 w-2 rounded-full" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
+    <div className="rounded-lg border border-border bg-background/45 p-3">
+      <div className="mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+        {label}
+      </div>
+      <div className="mt-2 text-sm font-semibold leading-snug" style={{ color }}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function ArtifactCard({ title, content }: { title: string; content: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-surface/70 p-5">
+      <div className="mono text-[10px] uppercase tracking-[0.2em] text-blue">{title}</div>
+      <pre className="mono mt-3 overflow-x-auto rounded-lg border border-border bg-background/70 p-4 text-xs leading-relaxed text-foreground/85">
+        {content}
+      </pre>
+    </div>
+  );
+}
+
+function CoverageBadge({ label }: { label: string }) {
+  return (
+    <span className="rounded-full border border-green/40 bg-green/10 px-2.5 py-1 text-xs font-semibold text-green">
       {label}
     </span>
   );
 }
 
-/* ---------------- AGENTS ---------------- */
-function Agents() {
-  const agents = [
-    { icon: AlertTriangle, name: "Hidden Impact", desc: "Tìm những module bị ảnh hưởng gián tiếp, không có trong diff.", color: "var(--amber)" },
-    { icon: CheckCircle2, name: "Verification Gap", desc: "Đối chiếu test coverage với phạm vi thay đổi thực tế.", color: "var(--lime)" },
-    { icon: Lock, name: "Security & PII", desc: "Phát hiện secret leak, log PII, IAM/scope mở quá rộng.", color: "var(--rose)" },
-    { icon: Radio, name: "Kafka / Event", desc: "Kiểm tra breaking change ở event schema và consumer.", color: "var(--violet)" },
-    { icon: GitBranch, name: "Non-prod vs Prod", desc: "So sánh config, flag, image tag giữa các môi trường.", color: "var(--cyan)" },
-    { icon: Rocket, name: "Rollout / Runbook", desc: "Đánh giá rollout plan, rollback và readiness gates.", color: "var(--primary)" },
-    { icon: History, name: "Historical Incident", desc: "Đối chiếu thay đổi với incident & post-mortem trước đây.", color: "var(--accent)" },
-  ];
-
+function DecisionBadge({ label, tone }: { label: string; tone: "danger" | "warn" }) {
+  const color = tone === "danger" ? "var(--magenta)" : "var(--orange)";
   return (
-    <section id="agents" className="relative border-t border-border bg-surface/30 py-28 md:py-36">
-      <div className="mx-auto max-w-7xl px-6">
-        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="max-w-3xl">
-          <div className="mono mb-4 text-xs uppercase tracking-[0.2em] text-primary">04 — Đội hình AI</div>
-          <h2 className="text-4xl font-bold leading-tight md:text-5xl">
-            Bảy domain agent <span className="text-gradient">chạy song song</span>, mỗi agent một góc nhìn rủi ro.
-          </h2>
-          <p className="mt-5 max-w-2xl text-muted-foreground">
-            Không có agent nào clone repo. Tất cả đều hỏi qua Code Tool Gateway — đảm bảo audit, an toàn và nhất quán bằng chứng.
-          </p>
-        </motion.div>
-
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {agents.map((a, i) => (
-            <motion.div
-              key={a.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05, duration: 0.45 }}
-              className="group relative overflow-hidden rounded-xl border border-border bg-surface p-6 transition hover:-translate-y-1"
-            >
-              <div
-                className="absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-0 transition group-hover:opacity-30"
-                style={{ background: a.color, filter: "blur(40px)" }}
-              />
-              <div className="relative">
-                <div className="grid h-11 w-11 place-items-center rounded-lg border border-border bg-background" style={{ color: a.color }}>
-                  <a.icon className="h-5 w-5" />
-                </div>
-                <h3 className="mt-5 text-base font-semibold">{a.name}</h3>
-                <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{a.desc}</p>
-                <div className="mono mt-4 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground/70">
-                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: a.color, animation: "pulse-dot 1.8s ease-in-out infinite" }} />
-                  ready · parallel
-                </div>
-              </div>
-            </motion.div>
-          ))}
-          {/* gateway emphasis */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 7 * 0.05, duration: 0.45 }}
-            className="relative overflow-hidden rounded-xl border p-6 sm:col-span-2 lg:col-span-1"
-            style={{ borderColor: "transparent", background: "var(--grad-cool)" }}
-          >
-            <Zap className="h-5 w-5 text-background" />
-            <h3 className="mt-5 font-display text-base font-semibold text-background">Code Tool Gateway</h3>
-            <p className="mt-1.5 text-xs leading-relaxed text-background/80">
-              Boundary duy nhất giữa agent và workspace. Mọi tool call được route, enforce policy, và lưu vào S3.
-            </p>
-          </motion.div>
-        </div>
+    <div
+      className="rounded-xl border bg-background/55 p-4 text-center"
+      style={{ borderColor: `${color}66` }}
+    >
+      <div className="mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+        decision
       </div>
-    </section>
+      <div className="mt-2 text-sm font-bold" style={{ color }}>
+        {label}
+      </div>
+    </div>
   );
 }
 
-/* ---------------- EVIDENCE / DATA LAYER ---------------- */
-function Evidence() {
-  const items = [
-    { icon: Database, t: "DynamoDB", s: "Workspace registry & state" },
-    { icon: Boxes, t: "S3", s: "Manifest, diff, audit logs" },
-    { icon: Lock, t: "Secrets Manager", s: "GitLab tokens, API keys" },
-    { icon: Activity, t: "CloudWatch", s: "Logs, metrics, observability" },
-  ];
+function ChartPanel({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="relative py-28 md:py-36">
-      <div className="mx-auto max-w-7xl px-6">
-        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="max-w-3xl">
-          <div className="mono mb-4 text-xs uppercase tracking-[0.2em] text-primary">05 — Tin được vì có bằng chứng</div>
-          <h2 className="text-4xl font-bold leading-tight md:text-5xl">
-            Mỗi finding gắn với <span className="text-gradient">file, dòng code, commit</span> cụ thể.
-          </h2>
-          <p className="mt-5 max-w-2xl text-muted-foreground">
-            Data & state layer được thiết kế để mọi quyết định AI đều có thể truy ngược: ai hỏi gì, workspace trả lời thế nào, bằng chứng nằm ở đâu.
-          </p>
-        </motion.div>
-
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {items.map((x, i) => (
-            <motion.div
-              key={x.t}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.06 }}
-              className="rounded-xl border border-border bg-surface p-6"
-            >
-              <x.icon className="h-5 w-5 text-primary" />
-              <div className="mt-4 font-display font-semibold">{x.t}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{x.s}</div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------------- WHY ---------------- */
-function Why() {
-  const metrics = [
-    { v: "1", l: "workspace mỗi CR", sub: "code & index reuse" },
-    { v: "7", l: "domain agents song song", sub: "không clone repo" },
-    { v: "100%", l: "tool call có audit", sub: "lưu vào S3" },
-    { v: "0", l: "quyền merge / deploy", sub: "read-only boundary" },
-  ];
-  return (
-    <section id="why" className="relative border-t border-border py-28 md:py-36">
-      <div className="absolute inset-0 grid-bg opacity-40" />
-      <div className="relative mx-auto max-w-7xl px-6">
-        <motion.div initial="hidden" whileInView="show" viewport={{ once: true }} variants={fadeUp} className="mx-auto max-w-3xl text-center">
-          <div className="mono mb-4 text-xs uppercase tracking-[0.2em] text-primary">06 — Vì sao quan trọng</div>
-          <h2 className="text-4xl font-bold leading-tight md:text-6xl">
-            Release nhanh hơn,<br /><span className="text-gradient">tự tin hơn</span>.
-          </h2>
-          <p className="mx-auto mt-6 max-w-xl text-muted-foreground">
-            Không thay thế con người — mà cho con người một AI reviewer đáng tin: nhanh, có bằng chứng, có audit, có boundary.
-          </p>
-        </motion.div>
-
-        <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {metrics.map((m, i) => (
-            <motion.div
-              key={m.l}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-              className="glass rounded-2xl p-7 text-center"
-            >
-              <div className="font-display text-5xl font-bold text-gradient md:text-6xl">{m.v}</div>
-              <div className="mt-2 text-sm font-medium">{m.l}</div>
-              <div className="mono mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">{m.sub}</div>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-20 flex flex-col items-center gap-4 text-center">
-          <a href="#journey" className="group inline-flex items-center gap-2 rounded-md px-6 py-3.5 text-sm font-semibold text-primary-foreground" style={{ background: "var(--grad-cool)", boxShadow: "var(--shadow-glow)" }}>
-            Quay lại tour hệ thống <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-          </a>
-          <p className="mono text-xs text-muted-foreground">design · evidence · audit · safety</p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="border-t border-border py-10">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 text-xs text-muted-foreground md:flex-row">
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full" style={{ background: "var(--grad-cool)" }} />
-          <span>CR.Review/AI · Solution Tour</span>
-        </div>
-        <span className="mono">© 2026 · AI-Assisted CR Review Platform</span>
-      </div>
-    </footer>
+    <div className="rounded-xl border border-border bg-surface/70 p-4">
+      <h3 className="font-display text-lg font-semibold">{title}</h3>
+      <div className="mt-3">{children}</div>
+    </div>
   );
 }

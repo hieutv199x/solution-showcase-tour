@@ -21,9 +21,14 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-cyan: var(--cyan);
+  --color-blue: var(--blue);
   --color-violet: var(--violet);
+  --color-purple: var(--purple);
+  --color-magenta: var(--magenta);
   --color-lime: var(--lime);
+  --color-green: var(--green);
   --color-amber: var(--amber);
+  --color-orange: var(--orange);
   --color-rose: var(--rose);
   --color-card: var(--surface);
   --color-card-foreground: var(--foreground);
@@ -32,44 +37,69 @@
 }
 
 :root {
-  --background: oklch(0.16 0.03 265);
-  --foreground: oklch(0.97 0.01 250);
-  --surface: oklch(0.21 0.035 265);
-  --surface-2: oklch(0.26 0.04 265);
-  --border: oklch(0.32 0.04 265);
-  --muted: oklch(0.24 0.03 265);
+  --background: oklch(0.115 0.028 255);
+  --foreground: oklch(0.965 0.012 245);
+  --surface: oklch(0.18 0.036 255);
+  --surface-2: oklch(0.235 0.045 255);
+  --border: oklch(0.31 0.045 255);
+  --muted: oklch(0.22 0.034 255);
   --muted-foreground: oklch(0.72 0.02 260);
-  --primary: oklch(0.78 0.18 200);          /* electric cyan */
-  --primary-foreground: oklch(0.15 0.04 260);
-  --accent: oklch(0.7 0.22 300);             /* violet */
+  --primary: oklch(0.78 0.16 205);
+  --primary-foreground: oklch(0.12 0.03 255);
+  --accent: oklch(0.72 0.22 305);
   --accent-foreground: oklch(0.97 0.01 250);
-  --cyan: oklch(0.82 0.16 200);
+  --cyan: oklch(0.82 0.16 198);
+  --blue: oklch(0.66 0.19 245);
   --violet: oklch(0.7 0.22 300);
+  --purple: oklch(0.72 0.22 305);
+  --magenta: oklch(0.72 0.22 335);
   --lime: oklch(0.88 0.22 130);
+  --green: oklch(0.78 0.17 155);
   --amber: oklch(0.82 0.17 75);
+  --orange: oklch(0.78 0.18 55);
   --rose: oklch(0.72 0.21 15);
 
-  --grad-aurora: linear-gradient(135deg, oklch(0.78 0.18 200) 0%, oklch(0.7 0.22 300) 50%, oklch(0.72 0.21 15) 100%);
-  --grad-cool: linear-gradient(135deg, oklch(0.78 0.18 200), oklch(0.7 0.22 300));
-  --shadow-glow: 0 0 80px -10px oklch(0.78 0.18 200 / 0.5);
+  --grad-aurora: linear-gradient(
+    135deg,
+    var(--cyan) 0%,
+    var(--blue) 34%,
+    var(--purple) 68%,
+    var(--magenta) 100%
+  );
+  --grad-cool: linear-gradient(135deg, var(--cyan), var(--blue), var(--purple));
+  --shadow-glow: 0 0 80px -10px oklch(0.78 0.16 205 / 0.5);
   --shadow-soft: 0 20px 60px -20px oklch(0 0 0 / 0.5);
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { scroll-behavior: smooth; }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     background: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     background-image:
-      radial-gradient(at 20% 0%, oklch(0.7 0.22 300 / 0.18) 0px, transparent 50%),
-      radial-gradient(at 80% 100%, oklch(0.78 0.18 200 / 0.15) 0px, transparent 50%);
+      radial-gradient(at 20% 0%, oklch(0.72 0.22 305 / 0.14) 0px, transparent 46%),
+      radial-gradient(at 80% 100%, oklch(0.78 0.16 198 / 0.12) 0px, transparent 46%);
     background-attachment: fixed;
   }
-  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.02em; }
-  code, pre, .mono { font-family: var(--font-mono); }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: 0;
+  }
+  code,
+  pre,
+  .mono {
+    font-family: var(--font-mono);
+  }
 }
 
 @utility text-gradient {
@@ -85,20 +115,38 @@
   border: 1px solid var(--border);
 }
 
+@utility shadow-cyan {
+  box-shadow: 0 0 42px -18px var(--cyan);
+}
+
 @utility glow-border {
   position: relative;
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.85); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
 }
 @keyframes dash {
-  to { stroke-dashoffset: -20; }
+  to {
+    stroke-dashoffset: -20;
+  }
 }
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .grid-bg {
